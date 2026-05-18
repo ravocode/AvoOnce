@@ -16,7 +16,7 @@ AvoOnce is a robust, framework-agnostic, open-source library that solves the "ex
 *   **`avoonce-jaxrs`**: Dropwizard / Jersey integration.
 
 ## Architecture
-To support multiple frameworks and backends seamlessly, the project is split into a multi-module build (Maven/Gradle).
+To support multiple frameworks and backends seamlessly, the project is split into a maven multi-module build.
 
 ```mermaid
 graph TD
