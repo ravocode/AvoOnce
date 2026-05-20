@@ -5,17 +5,10 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.raghavocode.avoonce</groupId>
-        <artifactId>avoonce-parent</artifactId>
+        <artifactId>idempotency-parent</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>avoonce-jaxrs</artifactId>
+    <artifactId>idempotency-core</artifactId>
 
-    <dependencies>
-        <dependency>
-            <groupId>com.raghavocode.avoonce</groupId>
-            <artifactId>avoonce-core</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-    </dependencies>
 </project>

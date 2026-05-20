@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.raghavocode.avoonce</groupId>
-    <artifactId>avoonce-parent</artifactId>
+    <artifactId>idempotency-parent</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
@@ -13,18 +13,15 @@
     <description>Distributed Idempotency Starter</description>
 
     <properties>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <modules>
-        <module>avoonce-core</module>
-        <module>avoonce-caffeine</module>
-        <module>avoonce-jaxrs</module>
-        <module>avoonce-jdbc</module>
-        <module>avoonce-redis</module>
-        <module>avoonce-spring-boot-starter</module>
+        <module>idempotency-core</module>
+        <module>idempotency-caffeine</module>
+        <module>idempotency-jaxrs</module>
+        <module>idempotency-jdbc</module>
+        <module>idempotency-redis</module>
+        <module>idempotency-spring-boot-starter</module>
     </modules>
 
 </project>

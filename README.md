@@ -8,12 +8,12 @@ AvoOnce is a robust, framework-agnostic, open-source library that solves the "ex
 *   **Standards Compliant:** Aligns with the IETF `Idempotency-Key` HTTP header draft.
 
 ## Modules
-*   **`avoonce-core`**: Pure Java core containing the state machine and SPI.
-*   **`avoonce-caffeine`**: Safe-by-default in-memory implementation using Caffeine.
-*   **`avoonce-redis`**: Distributed implementation using Redis.
-*   **`avoonce-jdbc`**: Relational database implementation using SQL Unique Constraints.
-*   **`avoonce-spring-boot-starter`**: Spring Web MVC integration.
-*   **`avoonce-jaxrs`**: Dropwizard / Jersey integration.
+*   **`idempotency-core`**: Pure Java core containing the state machine and SPI.
+*   **`idempotency-caffeine`**: Safe-by-default in-memory implementation using Caffeine.
+*   **`idempotency-redis`**: Distributed implementation using Redis.
+*   **`idempotency-jdbc`**: Relational database implementation using SQL Unique Constraints.
+*   **`idempotency-spring-boot-starter`**: Spring Web MVC integration.
+*   **`idempotency-jaxrs`**: Dropwizard / Jersey integration.
 
 ## Architecture
 To support multiple frameworks and backends seamlessly, the project is split into a maven multi-module build.
@@ -23,16 +23,16 @@ graph TD
     Client((Client)) -->|HTTP Request with<br/>Idempotency-Key| Web[Web Layer]
     
     subgraph Framework Integrations
-        Web --> SB[avoonce-spring-boot-starter]
-        Web --> JAX[avoonce-jaxrs]
+        Web --> SB[idempotency-spring-boot-starter]
+        Web --> JAX[idempotency-jaxrs]
     end
     
-    SB --> Core[avoonce-core<br/>IdempotencyManager & SPI]
+    SB --> Core[idempotency-core<br/>IdempotencyManager & SPI]
     JAX --> Core
     
     subgraph Storage Implementations
-        Core -->|SPI| Caff[avoonce-caffeine<br/>In-Memory]
-        Core -->|SPI| Red[avoonce-redis<br/>Distributed]
-        Core -->|SPI| JDBC[avoonce-jdbc<br/>Relational DB]
+        Core -->|SPI| Caff[idempotency-caffeine<br/>In-Memory]
+        Core -->|SPI| Red[idempotency-redis<br/>Distributed]
+        Core -->|SPI| JDBC[idempotency-jdbc<br/>Relational DB]
     end
 ```
