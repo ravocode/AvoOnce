@@ -13,6 +13,8 @@
     <description>Distributed Idempotency Starter</description>
 
     <properties>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
         <caffeine.version>3.1.8</caffeine.version>
         <junit.version>5.10.2</junit.version>
         <spring.boot.version>3.3.0</spring.boot.version>

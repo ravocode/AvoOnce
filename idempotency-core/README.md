@@ -6,6 +6,30 @@ This module contains the core domain objects and Service Provider Interface (SPI
 
 The main goal of this module is to provide the contracts for implementing an idempotency layer in your application. The central piece is the `IdempotencyRepository` interface, which defines the operations that must be implemented by a storage provider.
 
+## Idempotency State Machine
+
+AvoOnce implements a strict state machine. A request cannot transition from `PROCESSING` -> `SUCCESS` without first acquiring a lock. If a second request arrives with the same Idempotency Key while the first is still processing, the second request is immediately rejected with a 422 error. This ensures true "exactly-once" semantics, even in the face of concurrent retry storms.
+
+```mermaid
+graph TD
+    A[Client Retry] --> B{Idempotency Key Match?}
+    
+    B -- No --> C[Continue Processing]
+    B -- Yes --> D{Is Status Success?}
+    
+    D -- Yes --> E[Return Cached Response<br/>HTTP 200]
+    D -- No --> F{Is Processing?}
+    
+    F -- Yes --> G[Return Error<br/>HTTP 422<br/>Duplicate Request]
+    F -- No --> H[Acquire Lock]
+    
+    H --> I[Process Request]
+    
+    I --> J{Error?}
+    J -- Yes --> K[Mark FAILED<br/>Release Lock]
+    J -- No --> L[Mark SUCCESS<br/>Store Response<br/>Release Lock]
+```
+
 ### IdempotencyRepository
 
 The `IdempotencyRepository` interface has the following methods:
