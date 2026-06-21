@@ -8,12 +8,18 @@ public class IdempotencyRecord {
     private final IdempotencyStatus status;
     private final IdempotencyResponse response;
     private final Long expiresAt;
+    private final String requestHash;
 
     public IdempotencyRecord(String idempotencyKey, IdempotencyStatus status, IdempotencyResponse response, Long expiresAt) {
+        this(idempotencyKey, status, response, expiresAt, null);
+    }
+
+    public IdempotencyRecord(String idempotencyKey, IdempotencyStatus status, IdempotencyResponse response, Long expiresAt, String requestHash) {
         this.idempotencyKey = idempotencyKey;
         this.status = status;
         this.response = response;
         this.expiresAt = expiresAt;
+        this.requestHash = requestHash;
     }
 
     public String getIdempotencyKey() {
@@ -30,5 +36,9 @@ public class IdempotencyRecord {
 
     public Long getExpiresAt() {
         return expiresAt;
+    }
+
+    public String getRequestHash() {
+        return requestHash;
     }
 }
