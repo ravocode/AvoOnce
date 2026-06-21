@@ -4,7 +4,7 @@
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.2%2B-brightgreen)](https://spring.io/projects/spring-boot)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-[![AvoOnce](/img/AvoOnce.png)]
+![AvoOnce](/img/AvoOnce.png)
 
 AvoOnce is a robust, framework-agnostic, open-source library that solves the "exactly-once" processing myth in distributed systems. It prevents duplicate processing (e.g., double-charging) during network retries by caching responses and enforcing a strict state machine based on an `Idempotency-Key`.
 
@@ -19,7 +19,10 @@ AvoOnce is a robust, framework-agnostic, open-source library that solves the "ex
 
 ## Quick Start (Spring Boot)
 
-AvoOnce is incredibly easy to add to a Spring Boot application. Because it operates at the HTTP Filter layer, you do not need to change any of your existing `@RestController` code. Read more about it [here](idempotency-spring-boot-starter/README.md).
+AvoOnce is incredibly easy to add to a Spring Boot application. Because it operates at the HTTP Filter layer, you do not need to change any of your existing `@RestController` code.
+
+Read more about it [here](idempotency-spring-boot-starter/README.md) and refer the [sample application](sample/README.md) for more details.
+
 
 ### 1. Add Dependencies
 Add the Spring Boot starter and your chosen storage backend (e.g., Caffeine for in-memory) to your `pom.xml`:
