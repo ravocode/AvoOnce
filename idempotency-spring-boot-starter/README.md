@@ -23,12 +23,12 @@ You must include this starter along with a chosen storage implementation (e.g., 
 <dependency>
     <groupId>io.github.raghavocode.avoonce</groupId>
     <artifactId>idempotency-spring-boot-starter</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.0-alpha.1</version>
 </dependency>
 <dependency>
     <groupId>io.github.raghavocode.avoonce</groupId>
     <artifactId>idempotency-caffeine</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.0-alpha.1</version>
 </dependency>
 ```
 
