@@ -30,7 +30,7 @@ Add the Spring Boot starter and your chosen storage backend (e.g., Caffeine for 
 
 ```xml
 <dependency>
-    <groupId>com.raghavocode.avoonce</groupId>
+    <groupId>io.github.raghavocode.avoonce</groupId>
     <artifactId>idempotency-spring-boot-starter</artifactId>
     <version>1.0.0</version>
 </dependency>
@@ -38,14 +38,14 @@ Add the Spring Boot starter and your chosen storage backend (e.g., Caffeine for 
 <!-- Choose a storage backend -->
 <!-- For in-memory storage (single-node) -->
 <dependency>
-    <groupId>com.raghavocode.avoonce</groupId>
+    <groupId>io.github.raghavocode.avoonce</groupId>
     <artifactId>idempotency-caffeine</artifactId>
     <version>1.0.0</version>
 </dependency>
 <!-- For distributed Redis storage (coming soon) -->
 <!--
 <dependency>
-    <groupId>com.raghavocode.avoonce</groupId>
+    <groupId>io.github.raghavocode.avoonce</groupId>
     <artifactId>idempotency-redis</artifactId>
     <version>1.0.0</version>
 </dependency>
@@ -53,7 +53,7 @@ Add the Spring Boot starter and your chosen storage backend (e.g., Caffeine for 
 <!-- For relational database storage (coming soon) -->
 <!--
 <dependency>
-    <groupId>com.raghavocode.avoonce</groupId>
+    <groupId>io.github.raghavocode.avoonce</groupId>
     <artifactId>idempotency-jdbc</artifactId>
     <version>1.0.0</version>
 </dependency>

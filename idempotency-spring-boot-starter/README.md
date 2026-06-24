@@ -21,14 +21,14 @@ You must include this starter along with a chosen storage implementation (e.g., 
 
 ```xml
 <dependency>
-    <groupId>com.raghavocode.avoonce</groupId>
+    <groupId>io.github.raghavocode.avoonce</groupId>
     <artifactId>idempotency-spring-boot-starter</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.0</version>
 </dependency>
 <dependency>
-    <groupId>com.raghavocode.avoonce</groupId>
+    <groupId>io.github.raghavocode.avoonce</groupId>
     <artifactId>idempotency-caffeine</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
