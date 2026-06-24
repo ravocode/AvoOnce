@@ -22,10 +22,36 @@ AvoOnce is a robust, framework-agnostic, open-source library that solves the "ex
 
 AvoOnce is incredibly easy to add to a Spring Boot application. Because it operates at the HTTP Filter layer, you do not need to change any of your existing `@RestController` code.
 
-Read more about it [here](idempotency-spring-boot-starter/README.md) and refer the [sample application](sample/README.md) for more details.
+Read more about it [here](idempotency-spring-boot-starter/README.md) and refer the [sample application](idempotency-spring-boot-sample/) for more details.
 
 
-### 1. Add Dependencies
+### 1. Configure GitHub Packages & Add Dependencies
+
+> [!WARNING]
+> **GitHub Packages Authentication Required**
+> AvoOnce is currently hosted on GitHub Packages, which requires authentication.
+> Before adding the dependencies, you must:
+> 1. Generate a [GitHub Personal Access Token](https://github.com/settings/tokens) with `read:packages` scope.
+> 2. Add the token to your `~/.m2/settings.xml`:
+>    ```xml
+>    <servers>
+>      <server>
+>        <id>github</id>
+>        <username>YOUR_GITHUB_USERNAME</username>
+>        <password>YOUR_PAT</password>
+>      </server>
+>    </servers>
+>    ```
+> 3. Add the repository to your `pom.xml`:
+>    ```xml
+>    <repositories>
+>      <repository>
+>        <id>github</id>
+>        <url>https://maven.pkg.github.com/raghavocode/AvoOnce</url>
+>      </repository>
+>    </repositories>
+>    ```
+
 Add the Spring Boot starter and your chosen storage backend (e.g., Caffeine for in-memory) to your `pom.xml`:
 
 ```xml
