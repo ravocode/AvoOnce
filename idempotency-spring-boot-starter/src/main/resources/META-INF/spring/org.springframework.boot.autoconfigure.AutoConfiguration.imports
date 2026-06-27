@@ -1,1 +1,1 @@
-com.raghavocode.avoonce.spring.IdempotencyAutoConfiguration
+io.github.raghavocode.avoonce.spring.IdempotencyAutoConfiguration
