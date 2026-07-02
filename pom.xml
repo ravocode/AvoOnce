@@ -6,7 +6,7 @@
 
     <groupId>io.github.raghavocode.avoonce</groupId>
     <artifactId>idempotency-parent</artifactId>
-    <version>1.0.0-alpha.1</version>
+    <version>1.0.0-alpha.2</version>
     <packaging>pom</packaging>
 
     <name>AvoOnce</name>

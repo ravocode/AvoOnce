@@ -58,7 +58,7 @@ Add the Spring Boot starter and your chosen storage backend (e.g., Caffeine for 
 <dependency>
     <groupId>io.github.raghavocode.avoonce</groupId>
     <artifactId>idempotency-spring-boot-starter</artifactId>
-    <version>1.0.0-alpha.1</version>
+    <version>1.0.0-alpha.2</version>
 </dependency>
 
 <!-- Choose a storage backend -->
@@ -66,22 +66,22 @@ Add the Spring Boot starter and your chosen storage backend (e.g., Caffeine for 
 <dependency>
     <groupId>io.github.raghavocode.avoonce</groupId>
     <artifactId>idempotency-caffeine</artifactId>
-    <version>1.0.0-alpha.1</version>
+    <version>1.0.0-alpha.2</version>
 </dependency>
+<!-- OR -->
+<!-- For relational database storage-->
+<dependency>
+    <groupId>io.github.raghavocode.avoonce</groupId>
+    <artifactId>idempotency-jdbc</artifactId>
+    <version>1.0.0-alpha.2</version>
+</dependency>
+<!-- OR -->
 <!-- For distributed Redis storage (coming soon) -->
 <!--
 <dependency>
     <groupId>io.github.raghavocode.avoonce</groupId>
     <artifactId>idempotency-redis</artifactId>
-    <version>1.0.0-alpha.1</version>
-</dependency>
--->
-<!-- For relational database storage (coming soon) -->
-<!--
-<dependency>
-    <groupId>io.github.raghavocode.avoonce</groupId>
-    <artifactId>idempotency-jdbc</artifactId>
-    <version>1.0.0-alpha.1</version>
+    <version>1.0.0-alpha.2</version>
 </dependency>
 -->
 ```
@@ -104,9 +104,9 @@ If the client sends the exact same request again with the same `Idempotency-Key`
 *  [**`idempotency-core`**](idempotency-core/README.md): Pure Java core containing the state machine, request hashing logic, and SPI.
 *  [**`idempotency-caffeine`**](idempotency-caffeine/README.md): Safe-by-default in-memory implementation using Caffeine. Perfect for single-node deployments.
 *  [**`idempotency-spring-boot-starter`**](idempotency-spring-boot-starter/README.md): Spring Web MVC integration (Servlet Filter). Auto-configures everything.
+* [**`idempotency-jdbc`**](idempotency-jdbc/README.md): Relational Database implementation.
 * [**`idempotency-jaxrs`**](idempotency-jaxrs/README.md): JAX-RS integration (coming soon).
 * [**`idempotency-redis`**](idempotency-redis/README.md): Distributed Redis implementation (coming soon).
-* [**`idempotency-jdbc`**](idempotency-jdbc/README.md): Relational Database implementation (coming soon).
 
 ## Architecture
 To support multiple frameworks and backends seamlessly, the project is split into a maven multi-module build.
@@ -125,8 +125,8 @@ graph TD
     
     subgraph Storage Implementations
         Core -->|SPI| Caff[idempotency-caffeine<br/>In-Memory]
+        Core -->|SPI| JDBC[idempotency-jdbc<br/>Relational DB]
         Core -->|SPI| Red[idempotency-redis<br/>Distributed - coming soon]
-        Core -->|SPI| JDBC[idempotency-jdbc<br/>Relational DB - coming soon]
     end
 ```
 
