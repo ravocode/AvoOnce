@@ -8,26 +8,26 @@ The main goal of this module is to provide the contracts for implementing an ide
 
 ## Idempotency State Machine
 
-AvoOnce implements a strict state machine. A request cannot transition from `PROCESSING` -> `SUCCESS` without first acquiring a lock. If a second request arrives with the same Idempotency Key while the first is still processing, the second request is immediately rejected with a 422 error. This ensures true "exactly-once" semantics, even in the face of concurrent retry storms.
+AvoOnce implements a strict state machine. A request cannot transition from `STARTED` -> `COMPLETED` without first acquiring a lock. If a second request arrives with the same Idempotency Key while the first is still processing (in `STARTED` state), the second request is immediately rejected (returning HTTP 409 Conflict). This ensures true "exactly-once" semantics, even in the face of concurrent retry storms.
 
 ```mermaid
 graph TD
     A[Client Retry] --> B{Idempotency Key Match?}
     
     B -- No --> C[Continue Processing]
-    B -- Yes --> D{Is Status Success?}
+    B -- Yes --> D{Is Status COMPLETED?}
     
     D -- Yes --> E[Return Cached Response<br/>HTTP 200]
-    D -- No --> F{Is Processing?}
+    D -- No --> F{Is Status STARTED?}
     
-    F -- Yes --> G[Return Error<br/>HTTP 422<br/>Duplicate Request]
+    F -- Yes --> G[Return Error<br/>HTTP 409<br/>Conflict / Processing]
     F -- No --> H[Acquire Lock]
     
     H --> I[Process Request]
     
     I --> J{Error?}
     J -- Yes --> K[Mark FAILED<br/>Release Lock]
-    J -- No --> L[Mark SUCCESS<br/>Store Response<br/>Release Lock]
+    J -- No --> L[Mark COMPLETED<br/>Store Response<br/>Release Lock]
 ```
 
 ### IdempotencyRepository

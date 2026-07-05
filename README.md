@@ -58,7 +58,7 @@ Add the Spring Boot starter and your chosen storage backend (e.g., Caffeine for 
 <dependency>
     <groupId>io.github.ravocode.avoonce</groupId>
     <artifactId>idempotency-spring-boot-starter</artifactId>
-    <version>1.0.0-alpha.2</version>
+    <version>1.0.0-alpha.2.1</version>
 </dependency>
 
 <!-- Choose a storage backend -->
@@ -66,14 +66,14 @@ Add the Spring Boot starter and your chosen storage backend (e.g., Caffeine for 
 <dependency>
     <groupId>io.github.ravocode.avoonce</groupId>
     <artifactId>idempotency-caffeine</artifactId>
-    <version>1.0.0-alpha.2</version>
+    <version>1.0.0-alpha.2.1</version>
 </dependency>
 <!-- OR -->
 <!-- For relational database storage-->
 <dependency>
     <groupId>io.github.ravocode.avoonce</groupId>
     <artifactId>idempotency-jdbc</artifactId>
-    <version>1.0.0-alpha.2</version>
+    <version>1.0.0-alpha.2.1</version>
 </dependency>
 <!-- OR -->
 <!-- For distributed Redis storage (coming soon) -->
@@ -81,7 +81,7 @@ Add the Spring Boot starter and your chosen storage backend (e.g., Caffeine for 
 <dependency>
     <groupId>io.github.ravocode.avoonce</groupId>
     <artifactId>idempotency-redis</artifactId>
-    <version>1.0.0-alpha.2</version>
+    <version>1.0.0-alpha.2.1</version>
 </dependency>
 -->
 ```
