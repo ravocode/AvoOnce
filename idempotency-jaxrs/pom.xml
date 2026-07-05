@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>io.github.raghavocode.avoonce</groupId>
+        <groupId>io.github.ravocode.avoonce</groupId>
         <artifactId>idempotency-parent</artifactId>
         <version>1.0.0-alpha.2</version>
     </parent>
@@ -17,7 +17,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>io.github.raghavocode.avoonce</groupId>
+            <groupId>io.github.ravocode.avoonce</groupId>
             <artifactId>idempotency-core</artifactId>
             <version>${project.version}</version>
         </dependency>
