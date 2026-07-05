@@ -32,7 +32,7 @@ import java.sql.Statement;
  *     request_hash     VARCHAR(64),
  *     response_status  INTEGER,
  *     response_headers TEXT,
- *     response_body    BYTEA,       -- use BLOB for MySQL/MariaDB, BINARY LARGE OBJECT for H2
+ *     response_body    BLOB,        -- use BYTEA for PostgreSQL, BLOB for most others (MySQL, H2, etc.)
  *     expires_at       BIGINT       NOT NULL,
  *     created_at       BIGINT       NOT NULL,
  *     updated_at       BIGINT       NOT NULL,
@@ -51,24 +51,26 @@ public class JdbcIdempotencyTableInitializer {
      * @throws IllegalStateException if a {@link SQLException} occurs during DDL execution.
      */
     public void initialize(DataSource dataSource) {
-        String createTable = "CREATE TABLE IF NOT EXISTS idempotency_records ("
-                + "idempotency_key  VARCHAR(512) NOT NULL, "
-                + "status           VARCHAR(16)  NOT NULL, "
-                + "request_hash     VARCHAR(64), "
-                + "response_status  INTEGER, "
-                + "response_headers TEXT, "
-                + "response_body    BLOB, "
-                + "expires_at       BIGINT NOT NULL, "
-                + "created_at       BIGINT NOT NULL, "
-                + "updated_at       BIGINT NOT NULL, "
-                + "PRIMARY KEY (idempotency_key)"
-                + ")";
-
-        String createIndex = "CREATE INDEX IF NOT EXISTS idx_idempotency_expires_at "
-                + "ON idempotency_records(expires_at)";
-
         try (Connection conn = dataSource.getConnection();
              Statement stmt = conn.createStatement()) {
+
+            String blobType = resolveBlobType(conn);
+            String createTable = "CREATE TABLE IF NOT EXISTS idempotency_records ("
+                    + "idempotency_key  VARCHAR(512) NOT NULL, "
+                    + "status           VARCHAR(16)  NOT NULL, "
+                    + "request_hash     VARCHAR(64), "
+                    + "response_status  INTEGER, "
+                    + "response_headers TEXT, "
+                    + "response_body    " + blobType + ", "
+                    + "expires_at       BIGINT NOT NULL, "
+                    + "created_at       BIGINT NOT NULL, "
+                    + "updated_at       BIGINT NOT NULL, "
+                    + "PRIMARY KEY (idempotency_key)"
+                    + ")";
+
+            String createIndex = "CREATE INDEX IF NOT EXISTS idx_idempotency_expires_at "
+                    + "ON idempotency_records(expires_at)";
+
             stmt.execute(createTable);
             try {
                 stmt.execute(createIndex);
@@ -79,5 +81,13 @@ public class JdbcIdempotencyTableInitializer {
         } catch (SQLException e) {
             throw new IllegalStateException("Failed to initialise idempotency_records table", e);
         }
+    }
+
+    private String resolveBlobType(Connection conn) throws SQLException {
+        String dbName = conn.getMetaData().getDatabaseProductName().toLowerCase();
+        if (dbName.contains("postgres")) {
+            return "BYTEA";
+        }
+        return "BLOB";
     }
 }
