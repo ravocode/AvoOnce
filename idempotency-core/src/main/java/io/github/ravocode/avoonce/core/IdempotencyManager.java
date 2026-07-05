@@ -10,6 +10,8 @@ import io.github.ravocode.avoonce.core.exception.IdempotencyMismatchException;
 import io.github.ravocode.avoonce.core.hash.RequestHasher;
 import io.github.ravocode.avoonce.core.hash.Sha256RequestHasher;
 import io.github.ravocode.avoonce.core.spi.IdempotencyRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Core state machine that enforces exactly-once processing rules.
@@ -24,6 +26,8 @@ import io.github.ravocode.avoonce.core.spi.IdempotencyRepository;
  * </ol>
  */
 public class IdempotencyManager {
+
+    private static final Logger log = LoggerFactory.getLogger(IdempotencyManager.class);
 
     private final IdempotencyRepository repository;
     private final RequestHasher hasher;
@@ -118,15 +122,25 @@ public class IdempotencyManager {
 
         // 2. If present, the record was previously COMPLETED — replay the cached response.
         if (existingRecord.isPresent()) {
+            log.debug("[idempotency] Replaying cached response for key='{}'", idempotencyKey);
             return existingRecord.get().getResponse();
         }
 
         // 3. Lock acquired (state is now STARTED). Execute the action.
+        log.debug("[idempotency] Lock acquired, executing action for key='{}'", idempotencyKey);
         try {
-            IdempotencyResponse response = action.call();
+            final IdempotencyResponse response = action.call();
             repository.saveSuccess(idempotencyKey, response);
+            log.debug("[idempotency] Action completed successfully for key='{}'", idempotencyKey);
             return response;
+        } catch (IdempotencyConflictException e) {
+            log.warn("[idempotency] Conflict detected for key='{}': {}", idempotencyKey, e.getMessage());
+            throw e;
+        } catch (IdempotencyMismatchException e) {
+            log.warn("[idempotency] Payload mismatch detected for key='{}': {}", idempotencyKey, e.getMessage());
+            throw e;
         } catch (Exception e) {
+            log.warn("[idempotency] Action failed for key='{}', marking as FAILED. Cause: {}", idempotencyKey, e.getMessage());
             repository.saveFailure(idempotencyKey, e.getMessage());
             throw e;
         }

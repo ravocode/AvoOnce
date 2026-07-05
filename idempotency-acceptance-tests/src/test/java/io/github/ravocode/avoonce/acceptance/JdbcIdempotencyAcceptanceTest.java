@@ -33,7 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestPropertySource(properties = {
         "avoonce.idempotency.store=jdbc",
-        "spring.datasource.url=jdbc:h2:mem:idempotency_acceptance;DB_CLOSE_DELAY=-1;MODE=MySQL",
+        "spring.datasource.url=jdbc:h2:mem:idempotency_acceptance;DB_CLOSE_DELAY=-1",
         "spring.datasource.driver-class-name=org.h2.Driver",
         "spring.datasource.username=sa",
         "spring.datasource.password=",
@@ -52,7 +52,7 @@ public class JdbcIdempotencyAcceptanceTest extends BaseIdempotencyAcceptanceTest
                 .properties(
                         "server.port=0",
                         "avoonce.idempotency.store=jdbc",
-                        "spring.datasource.url=jdbc:h2:mem:idempotency_acceptance;DB_CLOSE_DELAY=-1;MODE=MySQL",
+                        "spring.datasource.url=jdbc:h2:mem:idempotency_acceptance;DB_CLOSE_DELAY=-1",
                         "spring.datasource.driver-class-name=org.h2.Driver",
                         "spring.datasource.username=sa",
                         "spring.datasource.password=",

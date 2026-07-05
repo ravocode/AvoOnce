@@ -11,8 +11,12 @@ import io.github.ravocode.avoonce.core.exception.IdempotencyMismatchException;
 import io.github.ravocode.avoonce.core.spi.IdempotencyRepository;
 
 import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CaffeineIdempotencyRepository implements IdempotencyRepository {
+
+    private static final Logger log = LoggerFactory.getLogger(CaffeineIdempotencyRepository.class);
 
     private final Cache<String, IdempotencyRecord> cache;
     private final IdempotencyConfig config;
@@ -46,12 +50,13 @@ public class CaffeineIdempotencyRepository implements IdempotencyRepository {
      */
     @Override
     public Optional<IdempotencyRecord> acquireOrGet(final String idempotencyKey, final String requestHash) {
-        IdempotencyRecord result = cache.asMap().compute(idempotencyKey, (key, existing) -> {
-            long now = System.currentTimeMillis();
+        final IdempotencyRecord result = cache.asMap().compute(idempotencyKey, (key, existing) -> {
+            final long now = System.currentTimeMillis();
 
             if (existing == null || existing.getStatus() == IdempotencyStatus.FAILED) {
                 // No record yet, or the previous attempt failed — acquire a fresh lock.
-                long expiresAt = now + config.getUnit().toMillis(config.getTtl());
+                log.debug("[idempotency] Acquiring lock for key='{}'", key);
+                final long expiresAt = now + config.getUnit().toMillis(config.getTtl());
                 return new IdempotencyRecord(key, IdempotencyStatus.STARTED, null, expiresAt, requestHash);
             }
 
@@ -68,12 +73,15 @@ public class CaffeineIdempotencyRepository implements IdempotencyRepository {
 
             // STARTED state — check whether the lock has timed out.
             if (existing.getExpiresAt() != null && now < existing.getExpiresAt()) {
+                log.warn("[idempotency] Conflict: key='{}' is already in progress (lock held until {})",
+                        key, existing.getExpiresAt());
                 throw new IdempotencyConflictException(
                         "Request with key " + key + " is already in progress.");
             }
 
             // Lock has expired — allow re-acquisition.
-            long expiresAt = now + config.getUnit().toMillis(config.getTtl());
+            log.warn("[idempotency] Lock expired for key='{}', re-acquiring", key);
+            final long expiresAt = now + config.getUnit().toMillis(config.getTtl());
             return new IdempotencyRecord(key, IdempotencyStatus.STARTED, null, expiresAt, requestHash);
         });
 

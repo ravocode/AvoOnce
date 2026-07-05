@@ -25,7 +25,8 @@ public class PaymentController {
         public String status;
         public int processedAttempts;
 
-        public PaymentResponse() {}
+        public PaymentResponse() {
+        }
 
         public PaymentResponse(String transactionId, String status, int processedAttempts) {
             this.transactionId = transactionId;
@@ -35,9 +36,10 @@ public class PaymentController {
     }
 
     @PostMapping
-    public ResponseEntity<PaymentResponse> processPayment(@RequestBody PaymentRequest request) {
+    public ResponseEntity<PaymentResponse> processPayment(final @RequestBody PaymentRequest request) {
         if (request.amount < 0) {
-            return ResponseEntity.badRequest().body(new PaymentResponse(null, "INVALID_AMOUNT", processCount.incrementAndGet()));
+            return ResponseEntity.badRequest()
+                    .body(new PaymentResponse(null, "INVALID_AMOUNT", processCount.incrementAndGet()));
         }
 
         // Simulate some processing time
@@ -49,7 +51,7 @@ public class PaymentController {
 
         int count = processCount.incrementAndGet();
         PaymentResponse response = new PaymentResponse(UUID.randomUUID().toString(), "SUCCESS", count);
-        
+
         return ResponseEntity.status(201)
                 .header("X-Payment-Processed", "true")
                 .body(response);
@@ -58,7 +60,7 @@ public class PaymentController {
     public int getProcessCount() {
         return processCount.get();
     }
-    
+
     public void resetCount() {
         processCount.set(0);
     }

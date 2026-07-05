@@ -66,7 +66,7 @@ public class IdempotencyAutoConfiguration {
     @ConditionalOnMissingClass("io.github.ravocode.avoonce.jdbc.JdbcIdempotencyRepository")
     @ConditionalOnProperty(prefix = "avoonce.idempotency", name = "store",
             havingValue = "auto", matchIfMissing = true)
-    public IdempotencyRepository caffeineAutoRepository(IdempotencyConfig config) {
+    public CaffeineIdempotencyRepository caffeineAutoRepository(IdempotencyConfig config) {
         return new CaffeineIdempotencyRepository(config);
     }
 
@@ -74,7 +74,7 @@ public class IdempotencyAutoConfiguration {
     @ConditionalOnMissingBean(IdempotencyRepository.class)
     @ConditionalOnClass(CaffeineIdempotencyRepository.class)
     @ConditionalOnProperty(prefix = "avoonce.idempotency", name = "store", havingValue = "caffeine")
-    public IdempotencyRepository caffeineExplicitRepository(IdempotencyConfig config) {
+    public CaffeineIdempotencyRepository caffeineExplicitRepository(IdempotencyConfig config) {
         return new CaffeineIdempotencyRepository(config);
     }
 
@@ -89,7 +89,7 @@ public class IdempotencyAutoConfiguration {
     @ConditionalOnMissingClass("com.github.benmanes.caffeine.cache.Cache")
     @ConditionalOnProperty(prefix = "avoonce.idempotency", name = "store",
             havingValue = "auto", matchIfMissing = true)
-    public IdempotencyRepository jdbcAutoRepository(DataSource dataSource, IdempotencyConfig config) {
+    public JdbcIdempotencyRepository jdbcAutoRepository(DataSource dataSource, IdempotencyConfig config) {
         return new JdbcIdempotencyRepository(dataSource, config);
     }
 
@@ -98,7 +98,7 @@ public class IdempotencyAutoConfiguration {
     @ConditionalOnClass(JdbcIdempotencyRepository.class)
     @ConditionalOnBean(DataSource.class)
     @ConditionalOnProperty(prefix = "avoonce.idempotency", name = "store", havingValue = "jdbc")
-    public IdempotencyRepository jdbcExplicitRepository(DataSource dataSource, IdempotencyConfig config) {
+    public JdbcIdempotencyRepository jdbcExplicitRepository(DataSource dataSource, IdempotencyConfig config) {
         return new JdbcIdempotencyRepository(dataSource, config);
     }
 
@@ -107,8 +107,7 @@ public class IdempotencyAutoConfiguration {
     // -------------------------------------------------------------------------
 
     @Bean
-    @ConditionalOnClass(JdbcIdempotencyRepository.class)
-    @ConditionalOnBean(DataSource.class)
+    @ConditionalOnBean(JdbcIdempotencyRepository.class)
     @ConditionalOnProperty(prefix = "avoonce.idempotency.jdbc", name = "auto-ddl",
             havingValue = "true", matchIfMissing = true)
     public InitializingBean jdbcTableInitializer(DataSource dataSource) {
@@ -138,11 +137,10 @@ public class IdempotencyAutoConfiguration {
     // -------------------------------------------------------------------------
 
     @Bean
-    @ConditionalOnClass(JdbcIdempotencyRepository.class)
-    @ConditionalOnBean(IdempotencyRepository.class)
+    @ConditionalOnBean(JdbcIdempotencyRepository.class)
     @ConditionalOnProperty(prefix = "avoonce.idempotency.jdbc.eviction", name = "enabled",
             havingValue = "true", matchIfMissing = true)
-    public JdbcEvictionTask jdbcEvictionTask(IdempotencyRepository repository) {
+    public JdbcEvictionTask jdbcEvictionTask(JdbcIdempotencyRepository repository) {
         return new JdbcEvictionTask(repository);
     }
 
@@ -153,7 +151,7 @@ public class IdempotencyAutoConfiguration {
     public static class JdbcEvictionTask {
         private final IdempotencyRepository repository;
 
-        public JdbcEvictionTask(IdempotencyRepository repository) {
+        public JdbcEvictionTask(final IdempotencyRepository repository) {
             this.repository = repository;
         }
 

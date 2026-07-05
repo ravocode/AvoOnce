@@ -18,6 +18,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A distributed {@link IdempotencyRepository} backed by any JDBC-compatible database.
@@ -56,6 +58,8 @@ import java.util.Optional;
  */
 public class JdbcIdempotencyRepository implements IdempotencyRepository {
 
+    private static final Logger log = LoggerFactory.getLogger(JdbcIdempotencyRepository.class);
+
     private static final String TABLE = "idempotency_records";
 
     // --- SQL templates filled in at construction time based on the detected dialect ---
@@ -73,7 +77,7 @@ public class JdbcIdempotencyRepository implements IdempotencyRepository {
     // Construction
     // -------------------------------------------------------------------------
 
-    public JdbcIdempotencyRepository(DataSource dataSource, IdempotencyConfig config) {
+    public JdbcIdempotencyRepository(final DataSource dataSource, final IdempotencyConfig config) {
         this.dataSource = dataSource;
         this.config = config;
 
@@ -99,7 +103,7 @@ public class JdbcIdempotencyRepository implements IdempotencyRepository {
      * Delegates to {@link #acquireOrGet(String, String)} with a {@code null} hash.
      */
     @Override
-    public Optional<IdempotencyRecord> acquireOrGet(String idempotencyKey) {
+    public Optional<IdempotencyRecord> acquireOrGet(final String idempotencyKey) {
         return acquireOrGet(idempotencyKey, null);
     }
 
@@ -120,7 +124,7 @@ public class JdbcIdempotencyRepository implements IdempotencyRepository {
      * </ol>
      */
     @Override
-    public Optional<IdempotencyRecord> acquireOrGet(String idempotencyKey, String requestHash) {
+    public Optional<IdempotencyRecord> acquireOrGet(final String idempotencyKey, final String requestHash) {
         long now = System.currentTimeMillis();
         long expiresAt = now + config.getUnit().toMillis(config.getTtl());
 
@@ -142,7 +146,7 @@ public class JdbcIdempotencyRepository implements IdempotencyRepository {
     }
 
     @Override
-    public void saveSuccess(String idempotencyKey, IdempotencyResponse response) {
+    public void saveSuccess(final String idempotencyKey, final IdempotencyResponse response) {
         long now = System.currentTimeMillis();
         try (Connection conn = dataSource.getConnection();
              PreparedStatement ps = conn.prepareStatement(sqlUpdateSuccess)) {
@@ -159,7 +163,7 @@ public class JdbcIdempotencyRepository implements IdempotencyRepository {
     }
 
     @Override
-    public void saveFailure(String idempotencyKey, String errorMessage) {
+    public void saveFailure(final String idempotencyKey, final String errorMessage) {
         long now = System.currentTimeMillis();
         try (Connection conn = dataSource.getConnection();
              PreparedStatement ps = conn.prepareStatement(sqlUpdateFailure)) {
@@ -173,7 +177,7 @@ public class JdbcIdempotencyRepository implements IdempotencyRepository {
     }
 
     @Override
-    public Optional<IdempotencyRecord> get(String idempotencyKey) {
+    public Optional<IdempotencyRecord> get(final String idempotencyKey) {
         try (Connection conn = dataSource.getConnection();
              PreparedStatement ps = conn.prepareStatement(sqlSelectByKey)) {
             ps.setString(1, idempotencyKey);
@@ -189,7 +193,7 @@ public class JdbcIdempotencyRepository implements IdempotencyRepository {
     }
 
     @Override
-    public void delete(String idempotencyKey) {
+    public void delete(final String idempotencyKey) {
         try (Connection conn = dataSource.getConnection();
              PreparedStatement ps = conn.prepareStatement(sqlDeleteByKey)) {
             ps.setString(1, idempotencyKey);
@@ -201,11 +205,15 @@ public class JdbcIdempotencyRepository implements IdempotencyRepository {
 
     @Override
     public int evictExpired() {
-        long now = System.currentTimeMillis();
+        final long now = System.currentTimeMillis();
         try (Connection conn = dataSource.getConnection();
              PreparedStatement ps = conn.prepareStatement(sqlEvictExpired)) {
             ps.setLong(1, now);
-            return ps.executeUpdate();
+            final int evicted = ps.executeUpdate();
+            if (evicted > 0) {
+                log.info("[idempotency] Evicted {} expired record(s) from {}", evicted, TABLE);
+            }
+            return evicted;
         } catch (SQLException e) {
             throw new IllegalStateException("JDBC error in evictExpired", e);
         }
@@ -215,21 +223,21 @@ public class JdbcIdempotencyRepository implements IdempotencyRepository {
     // Private helpers
     // -------------------------------------------------------------------------
 
-    private Optional<IdempotencyRecord> doAcquireOrGet(Connection conn,
-                                                        String key,
-                                                        String requestHash,
-                                                        long now,
-                                                        long expiresAt) throws SQLException {
+    private Optional<IdempotencyRecord> doAcquireOrGet(final Connection conn,
+                                                        final String key,
+                                                        final String requestHash,
+                                                        final long now,
+                                                        final long expiresAt) throws SQLException {
         // 1. Try to INSERT a STARTED lock row.
         boolean inserted = tryInsert(conn, key, requestHash, now, expiresAt);
 
         if (inserted) {
-            // Lock acquired — caller should execute the action.
+            log.debug("[idempotency] Lock acquired via INSERT for key='{}'", key);
             return Optional.empty();
         }
 
         // 2. A row already exists — read it.
-        IdempotencyRecord existing = selectRow(conn, key);
+        final IdempotencyRecord existing = selectRow(conn, key);
         if (existing == null) {
             // Highly unlikely: row vanished between INSERT fail and SELECT (concurrent delete).
             // Treat as a fresh start — re-try the insert unconditionally.
@@ -237,7 +245,7 @@ public class JdbcIdempotencyRepository implements IdempotencyRepository {
             return inserted ? Optional.empty() : Optional.empty(); // give up on second miss
         }
 
-        IdempotencyStatus status = existing.getStatus();
+        final IdempotencyStatus status = existing.getStatus();
 
         if (status == IdempotencyStatus.COMPLETED) {
             // Validate hash consistency before replaying.
@@ -247,6 +255,7 @@ public class JdbcIdempotencyRepository implements IdempotencyRepository {
                 throw new IdempotencyMismatchException(
                         "Idempotency key reused with a different request payload");
             }
+            log.debug("[idempotency] Replaying COMPLETED record for key='{}'", key);
             return Optional.of(existing);
         }
 
@@ -255,11 +264,15 @@ public class JdbcIdempotencyRepository implements IdempotencyRepository {
                 && existing.getExpiresAt() != null
                 && now < existing.getExpiresAt()) {
             // Active lock held by another request.
+            log.warn("[idempotency] Conflict: key='{}' is already in progress (lock held until {})",
+                    key, existing.getExpiresAt());
             throw new IdempotencyConflictException(
                     "Request with key " + key + " is already in progress.");
         }
 
         // Expired STARTED or FAILED — evict and re-acquire.
+        log.warn("[idempotency] Stale {} record found for key='{}', evicting and re-acquiring",
+                status, key);
         deleteRow(conn, key);
         tryInsert(conn, key, requestHash, now, expiresAt);
         return Optional.empty();
@@ -308,18 +321,18 @@ public class JdbcIdempotencyRepository implements IdempotencyRepository {
         }
     }
 
-    private IdempotencyRecord mapRow(ResultSet rs) throws SQLException {
-        String key         = rs.getString("idempotency_key");
-        IdempotencyStatus status = IdempotencyStatus.valueOf(rs.getString("status"));
-        String requestHash = rs.getString("request_hash");
-        long expiresAt     = rs.getLong("expires_at");
+    private IdempotencyRecord mapRow(final ResultSet rs) throws SQLException {
+        final String key             = rs.getString("idempotency_key");
+        final IdempotencyStatus status = IdempotencyStatus.valueOf(rs.getString("status"));
+        final String requestHash     = rs.getString("request_hash");
+        final long expiresAt         = rs.getLong("expires_at");
 
         IdempotencyResponse response = null;
-        int responseStatus = rs.getInt("response_status");
+        final int responseStatus = rs.getInt("response_status");
         if (!rs.wasNull()) {
-            String headersText = rs.getString("response_headers");
-            byte[] body        = rs.getBytes("response_body");
-            Map<String, List<String>> headers = HeaderCodec.decode(headersText);
+            final String headersText             = rs.getString("response_headers");
+            final byte[] body                    = rs.getBytes("response_body");
+            final Map<String, List<String>> headers = HeaderCodec.decode(headersText);
             response = new IdempotencyResponse(responseStatus, headers, body);
         }
 
@@ -360,7 +373,7 @@ public class JdbcIdempotencyRepository implements IdempotencyRepository {
                                           + " ON CONFLICT (idempotency_key) DO NOTHING";
             // H2 in MySQL compat mode (MODE=MySQL) supports INSERT IGNORE.
             // Fall through with MySQL/MariaDB.
-            case "mysql", "mariadb", "h2" -> "INSERT IGNORE INTO " + TABLE + " " + cols + vals;
+            case "mysql", "mariadb" -> "INSERT IGNORE INTO " + TABLE + " " + cols + vals;
             default                       -> "INSERT INTO " + TABLE + " " + cols + vals;
         };
     }

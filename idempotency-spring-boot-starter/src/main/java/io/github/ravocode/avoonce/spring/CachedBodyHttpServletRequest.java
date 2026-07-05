@@ -11,10 +11,10 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-public class CachedBodyHttpServletRequest extends HttpServletRequestWrapper {
+public final class CachedBodyHttpServletRequest extends HttpServletRequestWrapper {
     private final byte[] cachedBody;
 
-    public CachedBodyHttpServletRequest(HttpServletRequest request) throws IOException {
+    public CachedBodyHttpServletRequest(final HttpServletRequest request) throws IOException {
         super(request);
         this.cachedBody = StreamUtils.copyToByteArray(request.getInputStream());
     }
@@ -36,7 +36,7 @@ public class CachedBodyHttpServletRequest extends HttpServletRequestWrapper {
     private static class CachedBodyServletInputStream extends ServletInputStream {
         private final ByteArrayInputStream buffer;
 
-        public CachedBodyServletInputStream(byte[] contents) {
+        public CachedBodyServletInputStream(final byte[] contents) {
             this.buffer = new ByteArrayInputStream(contents);
         }
 
@@ -56,7 +56,7 @@ public class CachedBodyHttpServletRequest extends HttpServletRequestWrapper {
         }
 
         @Override
-        public void setReadListener(ReadListener listener) {
+        public void setReadListener(final ReadListener listener) {
             throw new UnsupportedOperationException();
         }
     }

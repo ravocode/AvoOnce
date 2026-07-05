@@ -17,7 +17,7 @@ Because it operates at the HTTP filter layer, it completely decouples idempotenc
 
 ## Installation
 
-You must include this starter along with a chosen storage implementation (e.g., `idempotency-caffeine`):
+You must include this starter along with a chosen storage implementation (e.g., `idempotency-caffeine` or `idempotency-jdbc`):
 
 ```xml
 <dependency>
@@ -32,6 +32,20 @@ You must include this starter along with a chosen storage implementation (e.g., 
 </dependency>
 ```
 
+## Storage Backend Selection
+
+By default, the starter automatically registers the repository implementation based on the dependencies present in your classpath:
+- **Caffeine (In-Memory):** Wired automatically if only `idempotency-caffeine` is present.
+- **JDBC (Distributed):** Wired automatically if only `idempotency-jdbc` is present and a `DataSource` bean is configured.
+- **Ambiguity / Fail-Fast Guard:** If **both** `idempotency-caffeine` and `idempotency-jdbc` are present on the classpath (and a `DataSource` is configured), the application will fail to start to prevent ambiguity. You must explicitly configure the `avoonce.idempotency.store` property to choose one.
+
+To switch or explicitly define your backend, set:
+```yaml
+avoonce:
+  idempotency:
+    store: jdbc # Options: auto, caffeine, jdbc
+```
+
 ## Configuration Properties
 
 You can customize the starter's behavior using your `application.yml` or `application.properties`. Below are the default values:
@@ -39,6 +53,9 @@ You can customize the starter's behavior using your `application.yml` or `applic
 ```yaml
 avoonce:
   idempotency:
+    # Which store to use: "auto", "caffeine", or "jdbc"
+    store: "auto"
+
     # The HTTP header used to identify the idempotency key
     header-name: "Idempotency-Key"
     
@@ -61,6 +78,16 @@ avoonce:
     filter:
       # Set to false to disable the auto-configured servlet filter entirely
       enabled: true
+
+    # JDBC-specific configuration (ignored if using Caffeine)
+    jdbc:
+      # Automatically run CREATE TABLE IF NOT EXISTS on startup
+      auto-ddl: true
+      eviction:
+        # Schedule background task to delete expired records
+        enabled: true
+        # Frequency of the eviction task in milliseconds (default: 1 hour)
+        interval-ms: 3600000
 ```
 
 ## Advanced: Custom Configuration

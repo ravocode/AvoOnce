@@ -19,8 +19,8 @@ public class Sha256RequestHasher implements RequestHasher {
     @Override
     public String hash(final byte[] requestBody) {
         try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            byte[] encoded = digest.digest(requestBody);
+            final MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            final byte[] encoded = digest.digest(requestBody);
             return toHex(encoded);
         } catch (NoSuchAlgorithmException e) {
             // SHA-256 is mandated by the Java SE spec — this should never happen.
