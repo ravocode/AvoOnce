@@ -16,18 +16,15 @@
         <dependency>
             <groupId>io.github.ravocode.avoonce</groupId>
             <artifactId>idempotency-core</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>io.github.ravocode.avoonce</groupId>
             <artifactId>idempotency-caffeine</artifactId>
-            <version>${project.version}</version>
             <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>io.github.ravocode.avoonce</groupId>
             <artifactId>idempotency-jdbc</artifactId>
-            <version>${project.version}</version>
             <optional>true</optional>
         </dependency>
 

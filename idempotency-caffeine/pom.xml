@@ -15,7 +15,6 @@
         <dependency>
             <groupId>io.github.ravocode.avoonce</groupId>
             <artifactId>idempotency-core</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.github.ben-manes.caffeine</groupId>

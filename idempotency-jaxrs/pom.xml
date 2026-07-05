@@ -19,7 +19,6 @@
         <dependency>
             <groupId>io.github.ravocode.avoonce</groupId>
             <artifactId>idempotency-core</artifactId>
-            <version>${project.version}</version>
         </dependency>
     </dependencies>
 </project>
