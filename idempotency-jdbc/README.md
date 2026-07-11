@@ -26,7 +26,7 @@ Add the JDBC storage backend to your `pom.xml`:
 <dependency>
     <groupId>io.github.ravocode.avoonce</groupId>
     <artifactId>idempotency-jdbc</artifactId>
-    <version>1.0.0-alpha.2.1</version>
+    <version>1.0.0-alpha.3.0</version>
 </dependency>
 ```
 
@@ -36,7 +36,7 @@ If you are using Spring Boot, be sure to include the starter as well:
 <dependency>
     <groupId>io.github.ravocode.avoonce</groupId>
     <artifactId>idempotency-spring-boot-starter</artifactId>
-    <version>1.0.0-alpha.2.1</version>
+    <version>1.0.0-alpha.3.0</version>
 </dependency>
 ```
 

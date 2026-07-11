@@ -6,7 +6,7 @@
     <parent>
         <groupId>io.github.ravocode.avoonce</groupId>
         <artifactId>idempotency-parent</artifactId>
-        <version>1.0.0-alpha.2.1</version>
+        <version>1.0.0-alpha.3.0</version>
     </parent>
 
     <artifactId>idempotency-spring-boot-sample</artifactId>
@@ -28,6 +28,16 @@
         <dependency>
             <groupId>io.github.ravocode.avoonce</groupId>
             <artifactId>idempotency-jdbc</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.github.ravocode.avoonce</groupId>
+            <artifactId>idempotency-redis</artifactId>
+        </dependency>
+        <!-- For Redis Example: explicitly include a driver (Jedis or Lettuce) -->
+        <dependency>
+            <groupId>redis.clients</groupId>
+            <artifactId>jedis</artifactId>
+            <version>5.1.0</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>

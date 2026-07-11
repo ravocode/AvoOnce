@@ -6,6 +6,10 @@ import io.github.ravocode.avoonce.core.config.IdempotencyConfig;
 import io.github.ravocode.avoonce.core.spi.IdempotencyRepository;
 import io.github.ravocode.avoonce.jdbc.JdbcIdempotencyRepository;
 import io.github.ravocode.avoonce.jdbc.JdbcIdempotencyTableInitializer;
+import io.github.ravocode.avoonce.redis.JedisRedisOperations;
+import io.github.ravocode.avoonce.redis.LettuceRedisOperations;
+import io.github.ravocode.avoonce.redis.RedisIdempotencyRepository;
+import io.github.ravocode.avoonce.redis.RedisOperations;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
@@ -20,6 +24,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.core.Ordered;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
+import redis.clients.jedis.JedisPool;
 
 import javax.sql.DataSource;
 
@@ -60,46 +65,95 @@ public class IdempotencyAutoConfiguration {
     // Caffeine store — auto mode (JDBC absent) or explicitly selected
     // -------------------------------------------------------------------------
 
-    @Bean
-    @ConditionalOnMissingBean(IdempotencyRepository.class)
+    @AutoConfiguration
     @ConditionalOnClass(CaffeineIdempotencyRepository.class)
-    @ConditionalOnMissingClass("io.github.ravocode.avoonce.jdbc.JdbcIdempotencyRepository")
-    @ConditionalOnProperty(prefix = "avoonce.idempotency", name = "store",
-            havingValue = "auto", matchIfMissing = true)
-    public CaffeineIdempotencyRepository caffeineAutoRepository(IdempotencyConfig config) {
-        return new CaffeineIdempotencyRepository(config);
-    }
+    public static class CaffeineRepositoryConfiguration {
+        @Bean
+        @ConditionalOnMissingBean(IdempotencyRepository.class)
+        @ConditionalOnMissingClass("io.github.ravocode.avoonce.jdbc.JdbcIdempotencyRepository")
+        @ConditionalOnProperty(prefix = "avoonce.idempotency", name = "store",
+                havingValue = "auto", matchIfMissing = true)
+        public CaffeineIdempotencyRepository caffeineAutoRepository(IdempotencyConfig config) {
+            return new CaffeineIdempotencyRepository(config);
+        }
 
-    @Bean
-    @ConditionalOnMissingBean(IdempotencyRepository.class)
-    @ConditionalOnClass(CaffeineIdempotencyRepository.class)
-    @ConditionalOnProperty(prefix = "avoonce.idempotency", name = "store", havingValue = "caffeine")
-    public CaffeineIdempotencyRepository caffeineExplicitRepository(IdempotencyConfig config) {
-        return new CaffeineIdempotencyRepository(config);
+        @Bean
+        @ConditionalOnMissingBean(IdempotencyRepository.class)
+        @ConditionalOnProperty(prefix = "avoonce.idempotency", name = "store", havingValue = "caffeine")
+        public CaffeineIdempotencyRepository caffeineExplicitRepository(IdempotencyConfig config) {
+            return new CaffeineIdempotencyRepository(config);
+        }
     }
 
     // -------------------------------------------------------------------------
     // JDBC store — auto mode (Caffeine absent + DataSource present) or explicitly selected
     // -------------------------------------------------------------------------
 
-    @Bean
-    @ConditionalOnMissingBean(IdempotencyRepository.class)
-    @ConditionalOnClass(JdbcIdempotencyRepository.class)
-    @ConditionalOnBean(DataSource.class)
-    @ConditionalOnMissingClass("com.github.benmanes.caffeine.cache.Cache")
-    @ConditionalOnProperty(prefix = "avoonce.idempotency", name = "store",
-            havingValue = "auto", matchIfMissing = true)
-    public JdbcIdempotencyRepository jdbcAutoRepository(DataSource dataSource, IdempotencyConfig config) {
-        return new JdbcIdempotencyRepository(dataSource, config);
+    @AutoConfiguration
+    @ConditionalOnClass({JdbcIdempotencyRepository.class, DataSource.class})
+    public static class JdbcRepositoryConfiguration {
+        @Bean
+        @ConditionalOnMissingBean(IdempotencyRepository.class)
+        @ConditionalOnMissingClass("com.github.benmanes.caffeine.cache.Cache")
+        @ConditionalOnProperty(prefix = "avoonce.idempotency", name = "store",
+                havingValue = "auto", matchIfMissing = true)
+        public JdbcIdempotencyRepository jdbcAutoRepository(DataSource dataSource, IdempotencyConfig config) {
+            return new JdbcIdempotencyRepository(dataSource, config);
+        }
+
+        @Bean
+        @ConditionalOnMissingBean(IdempotencyRepository.class)
+        @ConditionalOnProperty(prefix = "avoonce.idempotency", name = "store", havingValue = "jdbc")
+        public JdbcIdempotencyRepository jdbcExplicitRepository(DataSource dataSource, IdempotencyConfig config) {
+            return new JdbcIdempotencyRepository(dataSource, config);
+        }
     }
 
-    @Bean
-    @ConditionalOnMissingBean(IdempotencyRepository.class)
-    @ConditionalOnClass(JdbcIdempotencyRepository.class)
-    @ConditionalOnBean(DataSource.class)
-    @ConditionalOnProperty(prefix = "avoonce.idempotency", name = "store", havingValue = "jdbc")
-    public JdbcIdempotencyRepository jdbcExplicitRepository(DataSource dataSource, IdempotencyConfig config) {
-        return new JdbcIdempotencyRepository(dataSource, config);
+    // -------------------------------------------------------------------------
+    // Redis store — auto mode or explicitly selected
+    // -------------------------------------------------------------------------
+
+    @AutoConfiguration
+    @ConditionalOnClass(name = {"io.github.ravocode.avoonce.redis.RedisIdempotencyRepository", "io.lettuce.core.RedisClient"})
+    public static class LettuceAdapterConfiguration {
+        @Bean
+        @ConditionalOnMissingBean(RedisOperations.class)
+        @ConditionalOnBean(type = "io.lettuce.core.RedisClient")
+        public LettuceRedisOperations lettuceRedisOperations(io.lettuce.core.RedisClient redisClient) {
+            return new LettuceRedisOperations(redisClient);
+        }
+    }
+
+    @AutoConfiguration
+    @ConditionalOnClass(name = {"io.github.ravocode.avoonce.redis.RedisIdempotencyRepository", "redis.clients.jedis.JedisPool"})
+    public static class JedisAdapterConfiguration {
+        @Bean
+        @ConditionalOnMissingBean(RedisOperations.class)
+        @ConditionalOnBean(type = "redis.clients.jedis.JedisPool")
+        public JedisRedisOperations jedisRedisOperations(redis.clients.jedis.JedisPool jedisPool) {
+            return new JedisRedisOperations(jedisPool);
+        }
+    }
+
+    @AutoConfiguration
+    @ConditionalOnClass({RedisIdempotencyRepository.class, RedisOperations.class})
+    public static class RedisRepositoryConfiguration {
+        @Bean
+        @ConditionalOnMissingBean(IdempotencyRepository.class)
+        @ConditionalOnBean(RedisOperations.class)
+        @ConditionalOnProperty(prefix = "avoonce.idempotency", name = "store",
+                havingValue = "auto", matchIfMissing = true)
+        public RedisIdempotencyRepository redisAutoRepository(RedisOperations redisOperations, IdempotencyConfig config) {
+            return new RedisIdempotencyRepository(redisOperations, config);
+        }
+
+        @Bean
+        @ConditionalOnMissingBean(IdempotencyRepository.class)
+        @ConditionalOnBean(RedisOperations.class)
+        @ConditionalOnProperty(prefix = "avoonce.idempotency", name = "store", havingValue = "redis")
+        public RedisIdempotencyRepository redisExplicitRepository(RedisOperations redisOperations, IdempotencyConfig config) {
+            return new RedisIdempotencyRepository(redisOperations, config);
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -126,9 +180,9 @@ public class IdempotencyAutoConfiguration {
     public InitializingBean ambiguousStoreGuard() {
         return () -> {
             throw new IllegalStateException(
-                    "[AvoOnce] Both 'idempotency-caffeine' and 'idempotency-jdbc' are on the classpath "
-                    + "and a DataSource is available. Please set 'avoonce.idempotency.store' explicitly "
-                    + "to either 'caffeine' or 'jdbc' to make your intention clear.");
+                    "[AvoOnce] Multiple idempotency storage repositories are available on the classpath "
+                    + "along with their required beans (e.g. DataSource or RedisOperations). Please set "
+                    + "'avoonce.idempotency.store' explicitly to 'caffeine', 'jdbc', or 'redis'.");
         };
     }
 

@@ -23,12 +23,12 @@ You must include this starter along with a chosen storage implementation (e.g., 
 <dependency>
     <groupId>io.github.ravocode.avoonce</groupId>
     <artifactId>idempotency-spring-boot-starter</artifactId>
-    <version>1.0.0-alpha.2.1</version>
+    <version>1.0.0-alpha.3.0</version>
 </dependency>
 <dependency>
     <groupId>io.github.ravocode.avoonce</groupId>
     <artifactId>idempotency-caffeine</artifactId>
-    <version>1.0.0-alpha.2.1</version>
+    <version>1.0.0-alpha.3.0</version>
 </dependency>
 ```
 
@@ -37,13 +37,14 @@ You must include this starter along with a chosen storage implementation (e.g., 
 By default, the starter automatically registers the repository implementation based on the dependencies present in your classpath:
 - **Caffeine (In-Memory):** Wired automatically if only `idempotency-caffeine` is present.
 - **JDBC (Distributed):** Wired automatically if only `idempotency-jdbc` is present and a `DataSource` bean is configured.
-- **Ambiguity / Fail-Fast Guard:** If **both** `idempotency-caffeine` and `idempotency-jdbc` are present on the classpath (and a `DataSource` is configured), the application will fail to start to prevent ambiguity. You must explicitly configure the `avoonce.idempotency.store` property to choose one.
+- **Redis (Distributed):** Wired automatically if only `idempotency-redis` is present and a supported Redis client bean (e.g., `JedisPool` or `RedisClient`) is configured.
+- **Ambiguity / Fail-Fast Guard:** If **multiple** storage backends are present on the classpath (and their required beans are configured), the application will fail to start to prevent ambiguity. You must explicitly configure the `avoonce.idempotency.store` property to choose one.
 
 To switch or explicitly define your backend, set:
 ```yaml
 avoonce:
   idempotency:
-    store: jdbc # Options: auto, caffeine, jdbc
+    store: redis # Options: auto, caffeine, jdbc, redis
 ```
 
 ## Configuration Properties
@@ -53,7 +54,7 @@ You can customize the starter's behavior using your `application.yml` or `applic
 ```yaml
 avoonce:
   idempotency:
-    # Which store to use: "auto", "caffeine", or "jdbc"
+    # Which store to use: "auto", "caffeine", "jdbc", or "redis"
     store: "auto"
 
     # The HTTP header used to identify the idempotency key

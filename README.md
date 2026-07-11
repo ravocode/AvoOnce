@@ -16,6 +16,13 @@ AvoOnce is a robust, framework-agnostic, open-source library that solves the "ex
 *   **Payload Validation:** Optionally hashes request bodies to prevent clients from reusing an idempotency key with different payloads.
 *   **Standards Compliant:** Aligns with the IETF `Idempotency-Key` HTTP header draft.
 
+## Why AvoOnce? (The Gaps It Fills)
+Handling idempotency in distributed systems is notoriously difficult. AvoOnce fills several critical gaps in the Java ecosystem:
+*   **True Idempotency vs. Locks:** Distributed locks (like ShedLock or Redis lock) prevent concurrent execution, but they *don't cache HTTP responses*. If a network drops a successful `200 OK` response, a lock will treat a client's retry as a duplicate and fail. AvoOnce caches and replays the exact raw HTTP bytes, perfectly solving the dropped response problem.
+*   **The Boilerplate Gap:** Writing manual lock/cache logic inside every `@RestController` is tedious and error-prone. AvoOnce's *Zero-Code Integration* operates entirely at the Servlet Filter layer, protecting hundreds of endpoints instantly without changing business logic.
+*   **Payload Tampering:** Naïve solutions often replay responses based purely on the `Idempotency-Key`. AvoOnce hashes the request body (SHA-256) to ensure malicious clients can't reuse keys with mutated payloads (e.g., changing payment amounts).
+*   **Framework Lock-In:** AvoOnce's core state machine and pluggable storage engines are 100% framework-agnostic, avoiding heavy ecosystem lock-in (like Spring Integration's Idempotent Receiver) while still providing a seamless Spring Boot auto-configuration.
+
 ---
 
 ## Quick Start (Spring Boot)
@@ -58,7 +65,7 @@ Add the Spring Boot starter and your chosen storage backend (e.g., Caffeine for 
 <dependency>
     <groupId>io.github.ravocode.avoonce</groupId>
     <artifactId>idempotency-spring-boot-starter</artifactId>
-    <version>1.0.0-alpha.2.1</version>
+    <version>1.0.0-alpha.3.0</version>
 </dependency>
 
 <!-- Choose a storage backend -->
@@ -66,24 +73,22 @@ Add the Spring Boot starter and your chosen storage backend (e.g., Caffeine for 
 <dependency>
     <groupId>io.github.ravocode.avoonce</groupId>
     <artifactId>idempotency-caffeine</artifactId>
-    <version>1.0.0-alpha.2.1</version>
+    <version>1.0.0-alpha.3.0</version>
 </dependency>
 <!-- OR -->
 <!-- For relational database storage-->
 <dependency>
     <groupId>io.github.ravocode.avoonce</groupId>
     <artifactId>idempotency-jdbc</artifactId>
-    <version>1.0.0-alpha.2.1</version>
+    <version>1.0.0-alpha.3.0</version>
 </dependency>
 <!-- OR -->
-<!-- For distributed Redis storage (coming soon) -->
-<!--
+<!-- For distributed Redis storage -->
 <dependency>
     <groupId>io.github.ravocode.avoonce</groupId>
     <artifactId>idempotency-redis</artifactId>
-    <version>1.0.0-alpha.2.1</version>
+    <version>1.0.0-alpha.3.0</version>
 </dependency>
--->
 ```
 
 ### 2. Send Requests
@@ -106,7 +111,7 @@ If the client sends the exact same request again with the same `Idempotency-Key`
 *  [**`idempotency-spring-boot-starter`**](idempotency-spring-boot-starter/README.md): Spring Web MVC integration (Servlet Filter). Auto-configures everything.
 * [**`idempotency-jdbc`**](idempotency-jdbc/README.md): Relational Database implementation.
 * [**`idempotency-jaxrs`**](idempotency-jaxrs/README.md): JAX-RS integration (coming soon).
-* [**`idempotency-redis`**](idempotency-redis/README.md): Distributed Redis implementation (coming soon).
+* [**`idempotency-redis`**](idempotency-redis/README.md): Distributed Redis implementation.
 
 ## Architecture
 To support multiple frameworks and backends seamlessly, the project is split into a maven multi-module build.
@@ -126,7 +131,7 @@ graph TD
     subgraph Storage Implementations
         Core -->|SPI| Caff[idempotency-caffeine<br/>In-Memory]
         Core -->|SPI| JDBC[idempotency-jdbc<br/>Relational DB]
-        Core -->|SPI| Red[idempotency-redis<br/>Distributed - coming soon]
+        Core -->|SPI| Red[idempotency-redis<br/>Distributed]
     end
 ```
 

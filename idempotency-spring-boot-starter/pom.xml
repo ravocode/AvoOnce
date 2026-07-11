@@ -6,7 +6,7 @@
     <parent>
         <groupId>io.github.ravocode.avoonce</groupId>
         <artifactId>idempotency-parent</artifactId>
-        <version>1.0.0-alpha.2.1</version>
+        <version>1.0.0-alpha.3.0</version>
     </parent>
 
     <artifactId>idempotency-spring-boot-starter</artifactId>
@@ -25,6 +25,22 @@
         <dependency>
             <groupId>io.github.ravocode.avoonce</groupId>
             <artifactId>idempotency-jdbc</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>io.github.ravocode.avoonce</groupId>
+            <artifactId>idempotency-redis</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>io.lettuce</groupId>
+            <artifactId>lettuce-core</artifactId>
+            <version>6.3.2.RELEASE</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>redis.clients</groupId>
+            <artifactId>jedis</artifactId>
             <optional>true</optional>
         </dependency>
 
