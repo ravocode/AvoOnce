@@ -21,6 +21,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -65,7 +66,7 @@ public class IdempotencyAutoConfiguration {
     // Caffeine store — auto mode (JDBC absent) or explicitly selected
     // -------------------------------------------------------------------------
 
-    @AutoConfiguration
+    @Configuration
     @ConditionalOnClass(CaffeineIdempotencyRepository.class)
     public static class CaffeineRepositoryConfiguration {
         @Bean
@@ -89,7 +90,7 @@ public class IdempotencyAutoConfiguration {
     // JDBC store — auto mode (Caffeine absent + DataSource present) or explicitly selected
     // -------------------------------------------------------------------------
 
-    @AutoConfiguration
+    @Configuration
     @ConditionalOnClass({JdbcIdempotencyRepository.class, DataSource.class})
     public static class JdbcRepositoryConfiguration {
         @Bean
@@ -113,7 +114,7 @@ public class IdempotencyAutoConfiguration {
     // Redis store — auto mode or explicitly selected
     // -------------------------------------------------------------------------
 
-    @AutoConfiguration
+    @Configuration
     @ConditionalOnClass(name = {"io.github.ravocode.avoonce.redis.RedisIdempotencyRepository", "io.lettuce.core.RedisClient"})
     public static class LettuceAdapterConfiguration {
         @Bean
@@ -124,7 +125,7 @@ public class IdempotencyAutoConfiguration {
         }
     }
 
-    @AutoConfiguration
+    @Configuration
     @ConditionalOnClass(name = {"io.github.ravocode.avoonce.redis.RedisIdempotencyRepository", "redis.clients.jedis.JedisPool"})
     public static class JedisAdapterConfiguration {
         @Bean
@@ -135,7 +136,7 @@ public class IdempotencyAutoConfiguration {
         }
     }
 
-    @AutoConfiguration
+    @Configuration
     @ConditionalOnClass({RedisIdempotencyRepository.class, RedisOperations.class})
     public static class RedisRepositoryConfiguration {
         @Bean
