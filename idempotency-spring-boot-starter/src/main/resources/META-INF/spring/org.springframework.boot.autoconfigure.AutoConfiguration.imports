@@ -1,1 +1,6 @@
 io.github.ravocode.avoonce.spring.IdempotencyAutoConfiguration
+io.github.ravocode.avoonce.spring.CaffeineIdempotencyAutoConfiguration
+io.github.ravocode.avoonce.spring.JdbcIdempotencyAutoConfiguration
+io.github.ravocode.avoonce.spring.LettuceAdapterAutoConfiguration
+io.github.ravocode.avoonce.spring.JedisAdapterAutoConfiguration
+io.github.ravocode.avoonce.spring.RedisIdempotencyAutoConfiguration
