@@ -153,11 +153,7 @@
                 <artifactId>idempotency-redis</artifactId>
                 <version>${project.version}</version>
             </dependency>
-            <dependency>
-                <groupId>io.github.ravocode.avoonce</groupId>
-                <artifactId>idempotency-jaxrs</artifactId>
-                <version>${project.version}</version>
-            </dependency>
+
             <dependency>
                 <groupId>io.github.ravocode.avoonce</groupId>
                 <artifactId>idempotency-spring-boot-starter</artifactId>
