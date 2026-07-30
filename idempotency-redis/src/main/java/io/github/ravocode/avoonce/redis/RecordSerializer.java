@@ -17,9 +17,15 @@ import java.util.Map;
 
 /**
  * A lightweight, zero-dependency binary serializer for {@link IdempotencyRecord}.
+ * <p>
+ * The serialization format is versioned: the first byte of every payload is a
+ * version marker. This allows future format changes to be detected and handled
+ * gracefully rather than silently corrupting data.
  */
 class RecordSerializer {
 
+    /** Current serialization format version. */
+    private static final byte SERIALIZATION_VERSION = 1;
     private RecordSerializer() {
     }
 
@@ -30,6 +36,7 @@ class RecordSerializer {
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
              DataOutputStream out = new DataOutputStream(baos)) {
 
+            out.writeByte(SERIALIZATION_VERSION);
             writeString(out, record.getIdempotencyKey());
             writeString(out, record.getStatus() != null ? record.getStatus().name() : null);
             writeString(out, record.getRequestHash());
@@ -88,6 +95,13 @@ class RecordSerializer {
         }
         try (ByteArrayInputStream bais = new ByteArrayInputStream(data);
              DataInputStream in = new DataInputStream(bais)) {
+
+            byte version = in.readByte();
+            if (version != SERIALIZATION_VERSION) {
+                throw new IllegalStateException(
+                        "Unsupported serialization version: " + version
+                                + " (expected " + SERIALIZATION_VERSION + ")");
+            }
 
             String key = readString(in);
             String statusStr = readString(in);

@@ -6,7 +6,7 @@
 
     <groupId>io.github.ravocode.avoonce</groupId>
     <artifactId>idempotency-parent</artifactId>
-    <version>1.0.0-alpha.3.0</version>
+    <version>1.0.0</version>
     <packaging>pom</packaging>
 
     <name>AvoOnce</name>
@@ -20,6 +20,33 @@
         </repository>
     </distributionManagement>
 
+    <url>https://github.com/ravocode/AvoOnce</url>
+
+    <licenses>
+        <license>
+            <name>MIT License</name>
+            <url>https://opensource.org/licenses/MIT</url>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <id>raghavg</id>
+            <name>Raghavendran Gopalakrishnan</name>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:git://github.com/ravocode/AvoOnce.git</connection>
+        <developerConnection>scm:git:ssh://github.com:ravocode/AvoOnce.git</developerConnection>
+        <url>https://github.com/ravocode/AvoOnce</url>
+    </scm>
+
+    <issueManagement>
+        <system>GitHub Issues</system>
+        <url>https://github.com/ravocode/AvoOnce/issues</url>
+    </issueManagement>
+
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
@@ -31,7 +58,6 @@
     <modules>
         <module>idempotency-core</module>
         <module>idempotency-caffeine</module>
-        <module>idempotency-jaxrs</module>
         <module>idempotency-jdbc</module>
         <module>idempotency-redis</module>
         <module>idempotency-spring-boot-starter</module>

@@ -12,6 +12,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClas
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 
 import javax.sql.DataSource;
@@ -19,6 +20,7 @@ import javax.sql.DataSource;
 @AutoConfiguration
 @AutoConfigureAfter(name = "org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration")
 @ConditionalOnClass({ JdbcIdempotencyRepository.class, DataSource.class })
+@EnableScheduling
 public class JdbcIdempotencyAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean(IdempotencyRepository.class)

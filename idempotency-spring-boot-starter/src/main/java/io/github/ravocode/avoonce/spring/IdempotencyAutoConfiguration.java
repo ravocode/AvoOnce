@@ -1,31 +1,19 @@
 package io.github.ravocode.avoonce.spring;
 
-import io.github.ravocode.avoonce.caffeine.CaffeineIdempotencyRepository;
 import io.github.ravocode.avoonce.core.IdempotencyManager;
 import io.github.ravocode.avoonce.core.config.IdempotencyConfig;
 import io.github.ravocode.avoonce.core.spi.IdempotencyRepository;
-import io.github.ravocode.avoonce.jdbc.JdbcIdempotencyRepository;
-import io.github.ravocode.avoonce.jdbc.JdbcIdempotencyTableInitializer;
-import io.github.ravocode.avoonce.redis.JedisRedisOperations;
-import io.github.ravocode.avoonce.redis.LettuceRedisOperations;
-import io.github.ravocode.avoonce.redis.RedisIdempotencyRepository;
-import io.github.ravocode.avoonce.redis.RedisOperations;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.core.Ordered;
-import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.Scheduled;
 
 import javax.sql.DataSource;
 
@@ -38,17 +26,19 @@ import javax.sql.DataSource;
  * wired automatically.</li>
  * <li>If only {@code idempotency-jdbc} is on the classpath and a
  * {@link DataSource} bean exists → JDBC is wired automatically.</li>
- * <li>If <b>both</b> are on the classpath → startup fails with a clear error
+ * <li>If only {@code idempotency-redis} is on the classpath and a
+ * {@code RedisOperations} bean exists → Redis is wired automatically.</li>
+ * <li>If <b>multiple</b> are on the classpath → startup fails with a clear error
  * unless the user explicitly sets
- * {@code avoonce.idempotency.store=caffeine} or
- * {@code avoonce.idempotency.store=jdbc}.</li>
+ * {@code avoonce.idempotency.store=caffeine},
+ * {@code avoonce.idempotency.store=jdbc}, or
+ * {@code avoonce.idempotency.store=redis}.</li>
  * </ul>
  */
 @AutoConfiguration
 @AutoConfigureAfter({CaffeineIdempotencyAutoConfiguration.class, JdbcIdempotencyAutoConfiguration.class, RedisIdempotencyAutoConfiguration.class})
 @ConditionalOnClass(IdempotencyManager.class)
 @EnableConfigurationProperties(IdempotencyProperties.class)
-@EnableScheduling
 public class IdempotencyAutoConfiguration {
 
     // -------------------------------------------------------------------------
@@ -66,11 +56,14 @@ public class IdempotencyAutoConfiguration {
     }
 
     // -------------------------------------------------------------------------
-    // Fail-fast guard — both stores + DataSource + no explicit store choice
+    // Fail-fast guard — multiple stores + no explicit store choice
     // -------------------------------------------------------------------------
 
     @Bean
-    @ConditionalOnClass({ io.github.ravocode.avoonce.caffeine.CaffeineIdempotencyRepository.class, io.github.ravocode.avoonce.jdbc.JdbcIdempotencyRepository.class })
+    @ConditionalOnClass(name = {
+            "io.github.ravocode.avoonce.caffeine.CaffeineIdempotencyRepository",
+            "io.github.ravocode.avoonce.jdbc.JdbcIdempotencyRepository"
+    })
     @ConditionalOnBean(DataSource.class)
     @ConditionalOnProperty(prefix = "avoonce.idempotency", name = "store", havingValue = "auto", matchIfMissing = true)
     public InitializingBean ambiguousStoreGuard() {
