@@ -14,8 +14,15 @@ import java.security.NoSuchAlgorithmException;
  */
 public class Sha256RequestHasher implements RequestHasher {
 
+    /** Lookup table for fast nibble-to-hex-character conversion. */
     private static final char[] HEX_CHARS = "0123456789abcdef".toCharArray();
 
+    /**
+     * Computes a SHA-256 hash of the supplied request body.
+     *
+     * @param requestBody the raw request body bytes
+     * @return the lowercase hex-encoded hash string
+     */
     @Override
     public String hash(final byte[] requestBody) {
         try {
@@ -28,6 +35,12 @@ public class Sha256RequestHasher implements RequestHasher {
         }
     }
 
+    /**
+     * Converts a byte array to its lowercase hex-string representation.
+     *
+     * @param bytes the raw bytes to encode.
+     * @return a lowercase hexadecimal string of length {@code bytes.length * 2}.
+     */
     private static String toHex(final byte[] bytes) {
         char[] result = new char[bytes.length * 2];
         for (int i = 0; i < bytes.length; i++) {

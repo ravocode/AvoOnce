@@ -121,6 +121,11 @@ public class IdempotencyContainerFilter implements ContainerRequestFilter, Conta
         return this;
     }
 
+    /**
+     * Checks if this filter instance is configured for name-binding.
+     *
+     * @return {@code true} if name-binding is enabled, {@code false} otherwise.
+     */
     public boolean isNameBinding() {
         return nameBinding;
     }

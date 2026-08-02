@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AvoOnce — Distributed Idempotency Engine for Java</title>
+  <meta name="description"
+    content="AvoOnce is a lightweight, framework-agnostic distributed idempotency engine for Java microservices. Supports Spring Boot 4, Quarkus 3, Dropwizard 4, and JAX-RS 3.1.">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="AvoOnce — Distributed Idempotency Engine for Java">
+  <meta property="og:description"
+    content="Guaranteed exactly-once execution across microservices. Byte-perfect HTTP response replays based on IETF Idempotency-Key specification.">
+  <meta property="og:type" content="website">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+    rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <!-- Navigation Bar -->
+  <header class="navbar" id="top">
+    <div class="nav-brand">
+      <img src="img/AvoOnce.png" alt="AvoOnce Logo">
+      <span>AvoOnce</span>
+    </div>
+    <ul class="nav-links">
+      <li><a href="#features">Features</a></li>
+      <li><a href="#quickstart">Quick Start</a></li>
+      <li><a href="#backends">Storage Backends</a></li>
+      <li><a href="#architecture">Architecture</a></li>
+      <li><a href="apidocs/index.html">Java Docs</a></li>
+    </ul>
+    <a href="https://github.com/ravocode/AvoOnce" class="btn-github" target="_blank" rel="noopener">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+        <path
+          d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
+      </svg>
+      GitHub Repo
+    </a>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-badge-container">
+      <span class="badge badge-green">Java 21+</span>
+      <span class="badge badge-blue">Spring Boot 4.0+</span>
+      <span class="badge badge-cyan">Quarkus 3.12+</span>
+      <span class="badge badge-green">Dropwizard 4.0+</span>
+      <span class="badge badge-blue">Jakarta EE 10</span>
+      <span class="badge">MIT License</span>
+    </div>
+
+    <h1 class="hero-title">Distributed Idempotency Engine <span>for Modern Java</span></h1>
+    <p class="hero-subtitle">
+      Guaranteed exactly-once execution across microservices. Prevent duplicate side-effects, acquire concurrent
+      in-flight locks, detect payload tampering, and replay byte-perfect HTTP responses based on the IETF
+      <code>Idempotency-Key</code> specification.
+    </p>
+
+    <div class="hero-actions">
+      <a href="#quickstart" class="btn-primary">
+        🚀 Get Started
+      </a>
+      <a href="https://github.com/ravocode/AvoOnce" class="btn-secondary" target="_blank" rel="noopener">
+        📂 View GitHub Source
+      </a>
+    </div>
+
+    <div class="hero-graphic">
+      <img src="img/AvoOnce.png" alt="AvoOnce Architecture Diagram">
+    </div>
+  </section>
+
+  <!-- Why AvoOnce? Comparison Section -->
+  <section class="container" id="why">
+    <div class="section-header">
+      <div class="section-tag">Why AvoOnce?</div>
+      <h2 class="section-title">The Gaps In Traditional Distributed Locks</h2>
+      <p class="section-desc">
+        Distributed locks alone (e.g. ShedLock or basic Redis locks) prevent concurrent execution, but fail to solve
+        response replays or payload tampering.
+      </p>
+    </div>
+
+    <div class="table-container">
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>Distributed Execution Challenge</th>
+            <th>Distributed Locks Alone</th>
+            <th>AvoOnce Idempotency Engine</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Dropped Responses / Retries</strong></td>
+            <td>❌ Lock releases after execution; client retries re-execute or fail</td>
+            <td>✅ Caches &amp; replays exact HTTP status codes, headers, and raw body bytes</td>
+          </tr>
+          <tr>
+            <td><strong>Concurrent Duplicate Requests</strong></td>
+            <td>⚠️ Blocks or rejects; client retry does not receive cached result</td>
+            <td>✅ Returns immediate <code>409 Conflict</code> during execution, cached result on retry</td>
+          </tr>
+          <tr>
+            <td><strong>Payload Tampering Protection</strong></td>
+            <td>❌ Same key with modified payload executes or corrupts database</td>
+            <td>✅ SHA-256 body hash validation rejects modified payloads with <code>422 Unprocessable Entity</code></td>
+          </tr>
+          <tr>
+            <td><strong>Framework Overhead & Scope</strong></td>
+            <td>⚠️ Requires complex custom aspects or manual lock boilerplate</td>
+            <td>✅ Clean, selective <code>@Idempotent</code> annotation with zero overhead for unannotated routes</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Key Features Grid -->
+  <section class="container" id="features">
+    <div class="section-header">
+      <div class="section-tag">Core Capabilities</div>
+      <h2 class="section-title">Built for Production Microservices</h2>
+      <p class="section-desc">Designed with pure Java SPI, high-throughput caching, and multi-framework support.</p>
+    </div>
+
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🎯</div>
+        <h3 class="feature-title">Selective Endpoint Protection</h3>
+        <p class="feature-desc">Explicit, annotation-driven protection using <code>@Idempotent</code>. Unannotated
+          health checks, metrics, and read endpoints bypass filtering with zero performance cost.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <h3 class="feature-title">Byte-Perfect HTTP Replay</h3>
+        <p class="feature-desc">Captures exact HTTP status code, response headers, and raw response body bytes. Replays
+          cached responses without triggering controller logic or database queries.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">🔒</div>
+        <h3 class="feature-title">In-Flight Concurrency Locks</h3>
+        <p class="feature-desc">Prevents race conditions when clients send parallel duplicate requests. In-flight
+          requests holding the lock receive an instant <code>409 Conflict</code> response.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">🛡️</div>
+        <h3 class="feature-title">SHA-256 Payload Hash Validation</h3>
+        <p class="feature-desc">Computes cryptographic request hashes. Rejects requests trying to reuse an existing key
+          with altered parameters with a <code>422 Unprocessable Entity</code>.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">🔄</div>
+        <h3 class="feature-title">Fault-Tolerant Retry Engine</h3>
+        <p class="feature-desc">Transient server errors (HTTP <code>5xx</code>) automatically transition state to
+          <code>FAILED</code>, releasing the key so clients can safely retry execution.
+        </p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">🔌</div>
+        <h3 class="feature-title">Pluggable Storage SPI</h3>
+        <p class="feature-desc">Switch seamlessly between single-node Caffeine in-memory, distributed JDBC (PostgreSQL,
+          MySQL, H2, Oracle, MariaDB, SQL Server), and distributed Redis.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Interactive Quick Start -->
+  <section class="container" id="quickstart">
+    <div class="section-header">
+      <div class="section-tag">Quick Start</div>
+      <h2 class="section-title">Integrate in Minutes</h2>
+      <p class="section-desc">Choose your preferred framework baseline below.</p>
+    </div>
+
+    <div class="quickstart-card">
+      <div class="tabs-header">
+        <button class="tab-btn active" data-tab="tab-spring">Spring Boot 4.0+</button>
+        <button class="tab-btn" data-tab="tab-quarkus">Quarkus 3.12+</button>
+        <button class="tab-btn" data-tab="tab-dropwizard">Dropwizard 4.0+</button>
+        <button class="tab-btn" data-tab="tab-jaxrs">JAX-RS 3.1+ Standard</button>
+      </div>
+
+      <!-- Spring Boot Tab -->
+      <div class="tab-content active" id="tab-spring">
+        <div class="code-wrapper">
+          <div class="code-title">1. Add Dependency (pom.xml)</div>
+          <button class="copy-btn">Copy</button>
+          <pre><code>&lt;dependency&gt;
+    &lt;groupId&gt;io.github.ravocode.avoonce&lt;/groupId&gt;
+    &lt;artifactId&gt;idempotency-spring-boot-starter&lt;/artifactId&gt;
+    &lt;version&gt;1.0.0&lt;/version&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;io.github.ravocode.avoonce&lt;/groupId&gt;
+    &lt;artifactId&gt;idempotency-caffeine&lt;/artifactId&gt;
+    &lt;version&gt;1.0.0&lt;/version&gt;
+&lt;/dependency&gt;</code></pre>
+        </div>
+
+        <div class="code-wrapper">
+          <div class="code-title">2. Annotate Controller Endpoints</div>
+          <button class="copy-btn">Copy</button>
+          <pre><code>import io.github.ravocode.avoonce.spring.annotation.Idempotent;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
+
+@RestController
+@RequestMapping("/api/payments")
+public class PaymentController {
+
+    @PostMapping
+    @Idempotent // Protected by AvoOnce
+    public ResponseEntity&lt;PaymentResponse&gt; createPayment(@RequestBody PaymentRequest req) {
+        return ResponseEntity.status(201).body(paymentService.process(req));
+    }
+}</code></pre>
+        </div>
+      </div>
+
+      <!-- Quarkus Tab -->
+      <div class="tab-content" id="tab-quarkus">
+        <div class="code-wrapper">
+          <div class="code-title">1. Add Dependency (pom.xml)</div>
+          <button class="copy-btn">Copy</button>
+          <pre><code>&lt;dependency&gt;
+    &lt;groupId&gt;io.github.ravocode.avoonce&lt;/groupId&gt;
+    &lt;artifactId&gt;idempotency-jaxrs&lt;/artifactId&gt;
+    &lt;version&gt;1.0.0&lt;/version&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;io.github.ravocode.avoonce&lt;/groupId&gt;
+    &lt;artifactId&gt;idempotency-caffeine&lt;/artifactId&gt;
+    &lt;version&gt;1.0.0&lt;/version&gt;
+&lt;/dependency&gt;</code></pre>
+        </div>
+
+        <div class="code-wrapper">
+          <div class="code-title">2. CDI Filter Producer &amp; Endpoint Protection</div>
+          <button class="copy-btn">Copy</button>
+          <pre><code>@ApplicationScoped
+public class IdempotencyProducer {
+    @Produces @Singleton
+    public IdempotencyContainerFilter filter() {
+        return new IdempotencyContainerFilter(new CaffeineIdempotencyRepository(new IdempotencyConfig()));
+    }
+}
+
+@Path("/api/payments")
+public class PaymentResource {
+    @POST
+    @Idempotent // Name-bound JAX-RS protection
+    public Response createPayment(PaymentRequest req) {
+        return Response.status(201).entity(paymentService.process(req)).build();
+    }
+}</code></pre>
+        </div>
+      </div>
+
+      <!-- Dropwizard Tab -->
+      <div class="tab-content" id="tab-dropwizard">
+        <div class="code-wrapper">
+          <div class="code-title">1. Register in Dropwizard Application.run</div>
+          <button class="copy-btn">Copy</button>
+          <pre><code>@Override
+public void run(MyConfiguration config, Environment environment) {
+    IdempotencyRepository repository = new CaffeineIdempotencyRepository(new IdempotencyConfig());
+    
+    // Register AvoOnce JAX-RS Name-Bound Filter
+    environment.jersey().register(new IdempotencyContainerFilter(repository));
+}</code></pre>
+        </div>
+
+        <div class="code-wrapper">
+          <div class="code-title">2. Annotate Resource Methods</div>
+          <button class="copy-btn">Copy</button>
+          <pre><code>import io.github.ravocode.avoonce.jaxrs.Idempotent;
+import jakarta.ws.rs.*;
+
+@Path("/api/orders")
+public class OrderResource {
+
+    @POST
+    @Idempotent // Name-bound protection for Dropwizard
+    public Response placeOrder(OrderRequest request) {
+        return Response.ok(orderService.place(request)).build();
+    }
+}</code></pre>
+        </div>
+      </div>
+
+      <!-- JAX-RS Standard Tab -->
+      <div class="tab-content" id="tab-jaxrs">
+        <div class="code-wrapper">
+          <div class="code-title">Standard Jersey / RESTEasy Filter Registration</div>
+          <button class="copy-btn">Copy</button>
+          <pre><code>ResourceConfig resourceConfig = new ResourceConfig();
+
+IdempotencyRepository repository = new CaffeineIdempotencyRepository(new IdempotencyConfig());
+resourceConfig.register(new IdempotencyContainerFilter(repository));
+
+resourceConfig.register(PaymentResource.class);</code></pre>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Architecture & State Engine Section -->
+  <section class="container" id="architecture">
+    <div class="section-header">
+      <div class="section-tag">Architecture &amp; State Engine</div>
+      <h2 class="section-title">Strict State Machine &amp; IETF Standard</h2>
+      <p class="section-desc">Clean separation between framework adapters, state machine, and pluggable storage engines.
+      </p>
+    </div>
+
+    <div class="hero-graphic" style="margin: 0 auto 3rem;">
+      <img src="img/Architecture.png" alt="AvoOnce Architecture Diagram">
+    </div>
+
+    <div class="state-flow">
+      <div class="state-step">
+        <div class="state-num">1</div>
+        <h3 class="state-title">Key Extraction &amp; Inspection</h3>
+        <p class="state-desc">The <code>@Idempotent</code> filter intercepts the request, extracts
+          <code>Idempotency-Key</code> header, and computes a SHA-256 body hash.
+        </p>
+      </div>
+
+      <div class="state-step">
+        <div class="state-num">2</div>
+        <h3 class="state-title">Payload Hash &amp; Lock Check</h3>
+        <p class="state-desc">If cached payload hash mismatches → returns <code>422 Unprocessable Entity</code>. If key
+          is currently <code>IN_PROGRESS</code> → returns <code>409 Conflict</code>.</p>
+      </div>
+
+      <div class="state-step">
+        <div class="state-num">3</div>
+        <h3 class="state-title">Execution &amp; Response Caching</h3>
+        <p class="state-desc">If lock acquired, controller executes. Response status, headers, and body bytes are stored
+          as <code>COMPLETED</code> for instant replay.</p>
+      </div>
+
+      <div class="state-step">
+        <div class="state-num">4</div>
+        <h3 class="state-title">Fault-Tolerant Retry</h3>
+        <p class="state-desc">Server <code>5xx</code> errors transition record to <code>FAILED</code>, allowing the
+          client to safely retry the request with the same key.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Storage Backends Grid -->
+  <section class="container" id="backends">
+    <div class="section-header">
+      <div class="section-tag">Storage Backends SPI</div>
+      <h2 class="section-title">Production-Ready Storage Backends</h2>
+      <p class="section-desc">Pick the storage engine that matches your infrastructure topology.</p>
+    </div>
+
+    <div class="features-grid">
+      <div class="feature-card">
+        <h3 class="feature-title">☕ Caffeine (In-Memory)</h3>
+        <p class="feature-desc">Ultra-fast, zero-dependency in-memory store. Ideal for single-node applications or local
+          testing with automated sliding-window eviction.</p>
+      </div>
+
+      <div class="feature-card">
+        <h3 class="feature-title">🗄️ JDBC (Relational DB)</h3>
+        <p class="feature-desc">Multi-dialect support for PostgreSQL, MySQL, H2, Oracle, MariaDB, and SQL Server.
+          Features automatic table initialization (<code>auto-ddl</code>) and scheduled background cleanup.</p>
+      </div>
+
+      <div class="feature-card">
+        <h3 class="feature-title">⚡ Redis (Distributed Cache)</h3>
+        <p class="feature-desc">High-throughput distributed store leveraging Redis native TTL expiration and
+          zero-dependency binary record serialization for maximum performance.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-brand">
+        <img src="img/AvoOnce.png" alt="AvoOnce Logo" height="28">
+        <span>AvoOnce</span>
+      </div>
+
+      <ul class="footer-links">
+        <li><a href="https://github.com/ravocode/AvoOnce" target="_blank" rel="noopener">GitHub</a></li>
+        <li><a href="https://github.com/ravocode/AvoOnce/blob/main/LICENSE" target="_blank" rel="noopener">MIT
+            License</a></li>
+        <li><a href="#quickstart">Documentation</a></li>
+      </ul>
+    </div>
+    <div class="copyright">
+      &copy; 2026 ravocode. Released under the MIT License.
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+
+</html>

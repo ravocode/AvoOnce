@@ -11,6 +11,7 @@ import io.lettuce.core.codec.ByteArrayCodec;
  */
 public class LettuceRedisOperations implements RedisOperations {
 
+    /** The thread-safe stateful Lettuce Redis connection. */
     private final StatefulRedisConnection<byte[], byte[]> connection;
 
     /**
@@ -32,6 +33,9 @@ public class LettuceRedisOperations implements RedisOperations {
         this.connection = connection;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean setIfAbsent(byte[] key, byte[] value, long ttlMillis) {
         RedisCommands<byte[], byte[]> commands = connection.sync();
@@ -39,18 +43,27 @@ public class LettuceRedisOperations implements RedisOperations {
         return "OK".equalsIgnoreCase(result);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void set(byte[] key, byte[] value, long ttlMillis) {
         RedisCommands<byte[], byte[]> commands = connection.sync();
         commands.set(key, value, SetArgs.Builder.xx().px(ttlMillis));
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public byte[] get(byte[] key) {
         RedisCommands<byte[], byte[]> commands = connection.sync();
         return commands.get(key);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void delete(byte[] key) {
         RedisCommands<byte[], byte[]> commands = connection.sync();

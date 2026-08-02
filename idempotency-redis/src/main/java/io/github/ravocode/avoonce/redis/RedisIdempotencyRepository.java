@@ -24,16 +24,28 @@ public class RedisIdempotencyRepository implements IdempotencyRepository {
     private final RedisOperations redisOperations;
     private final IdempotencyConfig config;
 
+    /**
+     * Constructs a RedisIdempotencyRepository.
+     * 
+     * @param redisOperations Redis operations abstraction
+     * @param config          Idempotency configuration
+     */
     public RedisIdempotencyRepository(RedisOperations redisOperations, IdempotencyConfig config) {
         this.redisOperations = redisOperations;
         this.config = config;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Optional<IdempotencyRecord> acquireOrGet(final String idempotencyKey) {
         return acquireOrGet(idempotencyKey, null);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Optional<IdempotencyRecord> acquireOrGet(final String idempotencyKey, final String requestHash) {
         long now = System.currentTimeMillis();
@@ -42,8 +54,7 @@ public class RedisIdempotencyRepository implements IdempotencyRepository {
 
         final byte[] redisKey = getRedisKey(idempotencyKey);
         final IdempotencyRecord newRecord = new IdempotencyRecord(
-                idempotencyKey, IdempotencyStatus.STARTED, null, expiresAt, requestHash
-        );
+                idempotencyKey, IdempotencyStatus.STARTED, null, expiresAt, requestHash);
         final byte[] serializedRecord = RecordSerializer.serialize(newRecord);
 
         // Attempt to acquire lock atomically
@@ -73,7 +84,8 @@ public class RedisIdempotencyRepository implements IdempotencyRepository {
         }
 
         if (existing.getStatus() == IdempotencyStatus.COMPLETED) {
-            if (existing.getRequestHash() != null && requestHash != null && !existing.getRequestHash().equals(requestHash)) {
+            if (existing.getRequestHash() != null && requestHash != null
+                    && !existing.getRequestHash().equals(requestHash)) {
                 throw new IdempotencyMismatchException("Idempotency key reused with a different request payload");
             }
             log.debug("[idempotency] Replaying COMPLETED record for key='{}'", idempotencyKey);
@@ -87,7 +99,8 @@ public class RedisIdempotencyRepository implements IdempotencyRepository {
             throw new IdempotencyConflictException("Request with key " + idempotencyKey + " is already in progress.");
         }
 
-        // Expiry occurred but Redis hasn't evicted it yet? We can just delete and retry.
+        // Expiry occurred but Redis hasn't evicted it yet? We can just delete and
+        // retry.
         log.warn("[idempotency] Stale {} record found for key='{}', evicting and re-acquiring",
                 existing.getStatus(), idempotencyKey);
         redisOperations.delete(redisKey);
@@ -95,9 +108,13 @@ public class RedisIdempotencyRepository implements IdempotencyRepository {
         if (acquired) {
             return Optional.empty();
         }
-        throw new IdempotencyConflictException("Could not acquire lock after evicting stale record for key: " + idempotencyKey);
+        throw new IdempotencyConflictException(
+                "Could not acquire lock after evicting stale record for key: " + idempotencyKey);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void saveSuccess(final String idempotencyKey, final IdempotencyResponse response) {
         long now = System.currentTimeMillis();
@@ -105,7 +122,7 @@ public class RedisIdempotencyRepository implements IdempotencyRepository {
         long expiresAt = now + ttlMillis;
 
         final byte[] redisKey = getRedisKey(idempotencyKey);
-        
+
         // We need to keep the request hash from the previous state, so we get it first.
         byte[] existingBytes = redisOperations.get(redisKey);
         String requestHash = null;
@@ -117,14 +134,16 @@ public class RedisIdempotencyRepository implements IdempotencyRepository {
         }
 
         IdempotencyRecord completedRecord = new IdempotencyRecord(
-                idempotencyKey, IdempotencyStatus.COMPLETED, response, expiresAt, requestHash
-        );
+                idempotencyKey, IdempotencyStatus.COMPLETED, response, expiresAt, requestHash);
         byte[] serializedRecord = RecordSerializer.serialize(completedRecord);
-        
+
         // Overwrite and extend TTL
         redisOperations.set(redisKey, serializedRecord, ttlMillis);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void saveFailure(final String idempotencyKey, final String errorMessage) {
         long now = System.currentTimeMillis();
@@ -132,7 +151,7 @@ public class RedisIdempotencyRepository implements IdempotencyRepository {
         long expiresAt = now + ttlMillis;
 
         final byte[] redisKey = getRedisKey(idempotencyKey);
-        
+
         byte[] existingBytes = redisOperations.get(redisKey);
         String requestHash = null;
         if (existingBytes != null) {
@@ -143,14 +162,16 @@ public class RedisIdempotencyRepository implements IdempotencyRepository {
         }
 
         IdempotencyRecord failedRecord = new IdempotencyRecord(
-                idempotencyKey, IdempotencyStatus.FAILED, null, expiresAt, requestHash
-        );
+                idempotencyKey, IdempotencyStatus.FAILED, null, expiresAt, requestHash);
         byte[] serializedRecord = RecordSerializer.serialize(failedRecord);
-        
+
         // Overwrite and extend TTL
         redisOperations.set(redisKey, serializedRecord, ttlMillis);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Optional<IdempotencyRecord> get(final String idempotencyKey) {
         byte[] bytes = redisOperations.get(getRedisKey(idempotencyKey));
@@ -160,17 +181,29 @@ public class RedisIdempotencyRepository implements IdempotencyRepository {
         return Optional.ofNullable(RecordSerializer.deserialize(bytes));
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void delete(final String idempotencyKey) {
         redisOperations.delete(getRedisKey(idempotencyKey));
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int evictExpired() {
         // Redis handles TTL eviction natively.
         return 0;
     }
 
+    /**
+     * Converts an idempotency key into a Redis key.
+     * 
+     * @param idempotencyKey The idempotency key.
+     * @return The Redis key in byte array format.
+     */
     private byte[] getRedisKey(String idempotencyKey) {
         return (KEY_PREFIX + idempotencyKey).getBytes(StandardCharsets.UTF_8);
     }

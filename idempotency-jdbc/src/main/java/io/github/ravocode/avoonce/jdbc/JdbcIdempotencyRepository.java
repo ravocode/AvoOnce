@@ -1,14 +1,5 @@
 package io.github.ravocode.avoonce.jdbc;
 
-import io.github.ravocode.avoonce.core.config.IdempotencyConfig;
-import io.github.ravocode.avoonce.core.domain.IdempotencyRecord;
-import io.github.ravocode.avoonce.core.domain.IdempotencyResponse;
-import io.github.ravocode.avoonce.core.domain.IdempotencyStatus;
-import io.github.ravocode.avoonce.core.exception.IdempotencyConflictException;
-import io.github.ravocode.avoonce.core.exception.IdempotencyMismatchException;
-import io.github.ravocode.avoonce.core.spi.IdempotencyRepository;
-
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -18,8 +9,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+import javax.sql.DataSource;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import io.github.ravocode.avoonce.core.config.IdempotencyConfig;
+import io.github.ravocode.avoonce.core.domain.IdempotencyRecord;
+import io.github.ravocode.avoonce.core.domain.IdempotencyResponse;
+import io.github.ravocode.avoonce.core.domain.IdempotencyStatus;
+import io.github.ravocode.avoonce.core.exception.IdempotencyConflictException;
+import io.github.ravocode.avoonce.core.exception.IdempotencyMismatchException;
+import io.github.ravocode.avoonce.core.spi.IdempotencyRepository;
 
 /**
  * A distributed {@link IdempotencyRepository} backed by any JDBC-compatible database.
@@ -77,6 +79,12 @@ public class JdbcIdempotencyRepository implements IdempotencyRepository {
     // Construction
     // -------------------------------------------------------------------------
 
+    /**
+     * Constructs a JDBC-backed repository using the supplied data source and configuration.
+     *
+     * @param dataSource the JDBC data source used to access the idempotency table
+     * @param config     the idempotency TTL and lock-timeout settings
+     */
     public JdbcIdempotencyRepository(final DataSource dataSource, final IdempotencyConfig config) {
         this.dataSource = dataSource;
         this.config = config;

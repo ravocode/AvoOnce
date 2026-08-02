@@ -9,12 +9,25 @@ import redis.clients.jedis.params.SetParams;
  */
 public class JedisRedisOperations implements RedisOperations {
 
+    /** The connection pool used for Jedis resource acquisition. */
     private final JedisPool jedisPool;
 
+    /**
+     * Constructs a {@code JedisRedisOperations} instance using the given
+     * {@link JedisPool}.
+     *
+     * @param jedisPool the Jedis connection pool.
+     */
     public JedisRedisOperations(JedisPool jedisPool) {
         this.jedisPool = jedisPool;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean setIfAbsent(byte[] key, byte[] value, long ttlMillis) {
         try (Jedis jedis = jedisPool.getResource()) {
@@ -23,6 +36,9 @@ public class JedisRedisOperations implements RedisOperations {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void set(byte[] key, byte[] value, long ttlMillis) {
         try (Jedis jedis = jedisPool.getResource()) {
@@ -30,6 +46,9 @@ public class JedisRedisOperations implements RedisOperations {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public byte[] get(byte[] key) {
         try (Jedis jedis = jedisPool.getResource()) {
@@ -37,6 +56,9 @@ public class JedisRedisOperations implements RedisOperations {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void delete(byte[] key) {
         try (Jedis jedis = jedisPool.getResource()) {

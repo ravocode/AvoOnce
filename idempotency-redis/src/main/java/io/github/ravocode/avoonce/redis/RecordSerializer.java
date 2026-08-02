@@ -26,9 +26,16 @@ class RecordSerializer {
 
     /** Current serialization format version. */
     private static final byte SERIALIZATION_VERSION = 1;
+
     private RecordSerializer() {
     }
 
+    /**
+     * Serializes an {@link IdempotencyRecord} into a versioned binary byte array.
+     *
+     * @param record the record to serialize; may be {@code null}.
+     * @return the serialized byte array, or an empty byte array if record is {@code null}.
+     */
     public static byte[] serialize(IdempotencyRecord record) {
         if (record == null) {
             return new byte[0];
@@ -89,6 +96,13 @@ class RecordSerializer {
         }
     }
 
+    /**
+     * Deserializes a versioned binary byte array into an {@link IdempotencyRecord}.
+     *
+     * @param data the raw byte array to deserialize; may be {@code null} or empty.
+     * @return the deserialized {@link IdempotencyRecord}, or {@code null} if data is empty.
+     * @throws IllegalStateException if the serialization version is unsupported or data is corrupt.
+     */
     public static IdempotencyRecord deserialize(byte[] data) {
         if (data == null || data.length == 0) {
             return null;

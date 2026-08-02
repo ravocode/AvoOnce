@@ -25,6 +25,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Spring Web Servlet Filter that provides selective idempotency protection for
+ * endpoints
+ * annotated with {@link Idempotent}.
+ *
+ * <p>
+ * Uses {@link RequestMappingHandlerMapping} to check if the target controller
+ * method
+ * or class is annotated with {@code @Idempotent}. Unannotated requests bypass
+ * filtering completely.
+ */
 public class IdempotencyFilter extends OncePerRequestFilter {
 
     private static final Logger log = LoggerFactory.getLogger(IdempotencyFilter.class);
@@ -34,13 +45,28 @@ public class IdempotencyFilter extends OncePerRequestFilter {
     private final ObjectProvider<RequestMappingHandlerMapping> handlerMappingProvider;
     private volatile RequestMappingHandlerMapping handlerMapping;
 
+    /**
+     * Constructs an {@code IdempotencyFilter} with the given manager and
+     * configuration properties.
+     *
+     * @param manager    the core idempotency state machine.
+     * @param properties idempotency configuration properties.
+     */
     public IdempotencyFilter(final IdempotencyManager manager, final IdempotencyProperties properties) {
         this(manager, properties, null);
     }
 
+    /**
+     * Constructs an {@code IdempotencyFilter} with a handler mapping provider.
+     *
+     * @param manager                the core idempotency state machine.
+     * @param properties             idempotency configuration properties.
+     * @param handlerMappingProvider provider for Spring's
+     *                               {@link RequestMappingHandlerMapping}.
+     */
     public IdempotencyFilter(final IdempotencyManager manager,
-                             final IdempotencyProperties properties,
-                             final ObjectProvider<RequestMappingHandlerMapping> handlerMappingProvider) {
+            final IdempotencyProperties properties,
+            final ObjectProvider<RequestMappingHandlerMapping> handlerMappingProvider) {
         this.manager = manager;
         this.properties = properties;
         this.handlerMappingProvider = handlerMappingProvider;
@@ -48,8 +74,8 @@ public class IdempotencyFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(final HttpServletRequest request,
-                                    final HttpServletResponse response,
-                                    final FilterChain filterChain) throws ServletException, IOException {
+            final HttpServletResponse response,
+            final FilterChain filterChain) throws ServletException, IOException {
 
         // Only process endpoints annotated with @Idempotent
         if (!isIdempotentTarget(request)) {

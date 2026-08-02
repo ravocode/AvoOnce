@@ -1,0 +1,14 @@
+io.github.ravocode.avoonce.caffeine
+io.github.ravocode.avoonce.core
+io.github.ravocode.avoonce.core.config
+io.github.ravocode.avoonce.core.domain
+io.github.ravocode.avoonce.core.exception
+io.github.ravocode.avoonce.core.hash
+io.github.ravocode.avoonce.core.spi
+io.github.ravocode.avoonce.jaxrs
+io.github.ravocode.avoonce.jdbc
+io.github.ravocode.avoonce.redis
+io.github.ravocode.avoonce.sample
+io.github.ravocode.avoonce.sample.quarkus
+io.github.ravocode.avoonce.spring
+io.github.ravocode.avoonce.spring.annotation

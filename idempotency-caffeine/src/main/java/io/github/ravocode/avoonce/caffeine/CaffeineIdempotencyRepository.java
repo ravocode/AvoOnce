@@ -14,13 +14,28 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * In-memory {@link IdempotencyRepository} backed by a Caffeine cache.
+ *
+ * <p>Suitable for single-node deployments or local testing. TTL-based expiry and
+ * conflict detection are handled entirely in-process via Caffeine's atomic
+ * {@link Cache#asMap()} compute operations.
+ */
 public class CaffeineIdempotencyRepository implements IdempotencyRepository {
 
     private static final Logger log = LoggerFactory.getLogger(CaffeineIdempotencyRepository.class);
 
+    /** The underlying Caffeine cache keyed by idempotency key string. */
     private final Cache<String, IdempotencyRecord> cache;
+    /** The TTL and lock-timeout configuration for this repository. */
     private final IdempotencyConfig config;
 
+    /**
+     * Constructs a {@code CaffeineIdempotencyRepository} with the given configuration.
+     * A new Caffeine cache is created with TTL-based expiry matching {@code config.getTtl()}.
+     *
+     * @param config the idempotency TTL and lock-timeout configuration.
+     */
     public CaffeineIdempotencyRepository(final IdempotencyConfig config) {
         this.config = config;
         this.cache = Caffeine.newBuilder()
@@ -90,6 +105,12 @@ public class CaffeineIdempotencyRepository implements IdempotencyRepository {
                 : Optional.empty();
     }
 
+    /**
+     * Transitions the record for the given key to {@link IdempotencyStatus#COMPLETED} and stores the response.
+     *
+     * @param idempotencyKey the idempotency key of the completing request.
+     * @param response       the response to cache for future replay.
+     */
     @Override
     public void saveSuccess(final String idempotencyKey, final IdempotencyResponse response) {
         cache.asMap().computeIfPresent(idempotencyKey, (key, existing) ->
@@ -98,6 +119,13 @@ public class CaffeineIdempotencyRepository implements IdempotencyRepository {
         );
     }
 
+    /**
+     * Transitions the record for the given key to {@link IdempotencyStatus#FAILED},
+     * allowing the client to safely retry the operation.
+     *
+     * @param idempotencyKey the idempotency key of the failed request.
+     * @param errorMessage   a description of the failure cause (not persisted in Caffeine).
+     */
     @Override
     public void saveFailure(final String idempotencyKey, final String errorMessage) {
         cache.asMap().computeIfPresent(idempotencyKey, (key, existing) ->
@@ -106,6 +134,12 @@ public class CaffeineIdempotencyRepository implements IdempotencyRepository {
         );
     }
 
+    /**
+     * Retrieves the current {@link IdempotencyRecord} for the given key without modifying it.
+     *
+     * @param idempotencyKey the key to look up.
+     * @return an {@link Optional} containing the record, or empty if not found or expired.
+     */
     @Override
     public Optional<IdempotencyRecord> get(final String idempotencyKey) {
         return Optional.ofNullable(cache.getIfPresent(idempotencyKey));

@@ -1,10 +1,9 @@
 package io.github.ravocode.avoonce.spring;
 
-import io.github.ravocode.avoonce.core.IdempotencyManager;
-import io.github.ravocode.avoonce.core.config.IdempotencyConfig;
-import io.github.ravocode.avoonce.core.spi.IdempotencyRepository;
-import org.springframework.beans.factory.ObjectProvider;
+import javax.sql.DataSource;
+
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -17,7 +16,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.core.Ordered;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
-import javax.sql.DataSource;
+import io.github.ravocode.avoonce.core.IdempotencyManager;
+import io.github.ravocode.avoonce.core.config.IdempotencyConfig;
+import io.github.ravocode.avoonce.core.spi.IdempotencyRepository;
 
 /**
  * Spring Boot auto-configuration for the AvoOnce idempotency library.
@@ -37,16 +38,31 @@ import javax.sql.DataSource;
  * {@code avoonce.idempotency.store=redis}.</li>
  * </ul>
  */
+/**
+ * Spring Boot auto-configuration for the AvoOnce idempotency library.
+ */
 @AutoConfiguration
 @AutoConfigureAfter({CaffeineIdempotencyAutoConfiguration.class, JdbcIdempotencyAutoConfiguration.class, RedisIdempotencyAutoConfiguration.class})
 @ConditionalOnClass(IdempotencyManager.class)
 @EnableConfigurationProperties(IdempotencyProperties.class)
 public class IdempotencyAutoConfiguration {
 
+    /**
+     * Creates a new auto-configuration instance.
+     */
+    public IdempotencyAutoConfiguration() {
+    }
+
     // -------------------------------------------------------------------------
     // Shared IdempotencyConfig
     // -------------------------------------------------------------------------
 
+    /**
+     * Configures the core {@link IdempotencyConfig} based on application properties.
+     *
+     * @param properties idempotency configuration properties.
+     * @return the shared {@link IdempotencyConfig} bean.
+     */
     @Bean
     @ConditionalOnMissingBean
     public IdempotencyConfig idempotencyConfig(IdempotencyProperties properties) {
@@ -61,6 +77,12 @@ public class IdempotencyAutoConfiguration {
     // Fail-fast guard — multiple stores + no explicit store choice
     // -------------------------------------------------------------------------
 
+    /**
+     * Fail-fast bean that throws an {@link IllegalStateException} if multiple storage backends are on the classpath
+     * without an explicit {@code avoonce.idempotency.store} property set.
+     *
+     * @return an {@link InitializingBean} guard.
+     */
     @Bean
     @ConditionalOnClass(name = {
             "io.github.ravocode.avoonce.caffeine.CaffeineIdempotencyRepository",
@@ -81,12 +103,26 @@ public class IdempotencyAutoConfiguration {
     // Core manager + servlet filter
     // -------------------------------------------------------------------------
 
+    /**
+     * Creates the primary {@link IdempotencyManager} bean backed by the resolved {@link IdempotencyRepository}.
+     *
+     * @param repository the backing store for idempotency records.
+     * @return the core {@link IdempotencyManager} bean.
+     */
     @Bean
     @ConditionalOnMissingBean
     public IdempotencyManager idempotencyManager(IdempotencyRepository repository) {
         return new IdempotencyManager(repository);
     }
 
+    /**
+     * Registers the {@link IdempotencyFilter} as a Spring Boot servlet filter.
+     *
+     * @param manager                the core idempotency state machine.
+     * @param properties             idempotency configuration properties.
+     * @param handlerMappingProvider provider for Spring's {@link RequestMappingHandlerMapping}.
+     * @return the filter registration bean.
+     */
     @Bean
     @ConditionalOnMissingBean
     @ConditionalOnProperty(prefix = "avoonce.idempotency.filter", name = "enabled", matchIfMissing = true)
