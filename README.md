@@ -1,4 +1,4 @@
-# AvoOnce - Distributed Idempotency Engine for Java
+# AvoOnce - Distributed Idempotency handler for Java REST APIs
 
 [![Java](https://img.shields.io/badge/Java-21%2B-blue)](https://adoptium.net/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.0%2B-brightgreen)](https://spring.io/projects/spring-boot)
