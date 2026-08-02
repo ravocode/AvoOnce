@@ -1,51 +1,45 @@
 package io.github.ravocode.avoonce.sample;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.boot.test.web.server.LocalServerPort;
 
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public abstract class BaseSampleIntegrationTest {
 
-    @Autowired
-    protected TestRestTemplate restTemplate;
+    @LocalServerPort
+    protected int port;
+
+    protected final HttpClient httpClient = HttpClient.newHttpClient();
 
     @Test
-    void testBasicIdempotencyWorks() {
+    void testBasicIdempotencyWorks() throws Exception {
         String idempotencyKey = UUID.randomUUID().toString();
-        PaymentController.PaymentRequest request = new PaymentController.PaymentRequest();
-        request.accountId = "sample-acc-999";
-        request.amount = 50.00;
+        String requestBody = "{\"accountId\":\"sample-acc-999\",\"amount\":50.00}";
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Idempotency-Key", idempotencyKey);
-        HttpEntity<PaymentController.PaymentRequest> entity = new HttpEntity<>(request, headers);
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("http://localhost:" + port + "/api/payments"))
+                .header("Content-Type", "application/json")
+                .header("Idempotency-Key", idempotencyKey)
+                .POST(HttpRequest.BodyPublishers.ofString(requestBody))
+                .build();
 
         // 1. Initial Request
-        ResponseEntity<PaymentController.PaymentResponse> response1 = restTemplate.exchange(
-                "/api/payments", HttpMethod.POST, entity, PaymentController.PaymentResponse.class);
-
-        assertEquals(HttpStatus.CREATED, response1.getStatusCode());
-        assertNotNull(response1.getBody());
-        String transactionId = response1.getBody().transactionId;
+        HttpResponse<String> response1 = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        assertEquals(201, response1.statusCode());
+        String body1 = response1.body();
+        assertTrue(body1.contains("transactionId"));
 
         // 2. Retry with same idempotency key
-        ResponseEntity<PaymentController.PaymentResponse> response2 = restTemplate.exchange(
-                "/api/payments", HttpMethod.POST, entity, PaymentController.PaymentResponse.class);
-
-        assertEquals(HttpStatus.CREATED, response2.getStatusCode());
-        assertNotNull(response2.getBody());
-
-        // Assert it returned the exact same cached response (same transaction ID)
-        assertEquals(transactionId, response2.getBody().transactionId);
+        HttpResponse<String> response2 = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        assertEquals(201, response2.statusCode());
+        assertEquals(body1, response2.body());
     }
 }

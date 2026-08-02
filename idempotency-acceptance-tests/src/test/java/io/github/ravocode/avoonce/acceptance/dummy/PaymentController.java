@@ -1,5 +1,6 @@
 package io.github.ravocode.avoonce.acceptance.dummy;
 
+import io.github.ravocode.avoonce.spring.annotation.Idempotent;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -35,6 +36,7 @@ public class PaymentController {
     }
 
     @PostMapping
+    @Idempotent
     public ResponseEntity<PaymentResponse> processPayment(@RequestBody PaymentRequest request) {
         if (request.amount < 0) {
             return ResponseEntity.badRequest().body(new PaymentResponse(null, "INVALID_AMOUNT", processCount.incrementAndGet()));

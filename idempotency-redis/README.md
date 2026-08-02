@@ -8,7 +8,7 @@ The `idempotency-redis` module persists idempotency records in a Redis database.
 
 It has **no external framework dependencies** other than `idempotency-core` and `slf4j-api`. Redis client libraries (`jedis` and `lettuce-core`) are marked as optional, allowing you to plug in your preferred client.
 
-### Supported Datastores
+### Supported Datastoreso
 
 Because this module uses standard Redis commands (`SET`, `GET`, `DEL`), it is compatible with almost all Redis-compatible datastores, including:
 - Redis (Standalone, Sentinel, Cluster)

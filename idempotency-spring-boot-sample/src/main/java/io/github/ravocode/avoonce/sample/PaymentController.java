@@ -1,6 +1,8 @@
 package io.github.ravocode.avoonce.sample;
 
+import io.github.ravocode.avoonce.spring.annotation.Idempotent;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -35,7 +37,12 @@ public class PaymentController {
         }
     }
 
+    /**
+     * Protected endpoint: annotated with {@link Idempotent}.
+     * Deduplicated and cached in both GLOBAL mode and ANNOTATION mode.
+     */
     @PostMapping
+    @Idempotent
     public ResponseEntity<PaymentResponse> processPayment(final @RequestBody PaymentRequest request) {
         if (request.amount < 0) {
             return ResponseEntity.badRequest()
@@ -57,11 +64,25 @@ public class PaymentController {
                 .body(response);
     }
 
+    /**
+     * Unprotected endpoint: NOT annotated with {@link Idempotent}.
+     * In ANNOTATION mode, requests to this endpoint bypass the idempotency filter.
+     */
+    @PostMapping("/unprotected")
+    public ResponseEntity<PaymentResponse> processUnprotectedPayment(final @RequestBody PaymentRequest request) {
+        int count = processCount.incrementAndGet();
+        PaymentResponse response = new PaymentResponse(UUID.randomUUID().toString(), "UNPROTECTED", count);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/count")
     public int getProcessCount() {
         return processCount.get();
     }
 
-    public void resetCount() {
+    @PostMapping("/reset")
+    public ResponseEntity<Void> resetCount() {
         processCount.set(0);
+        return ResponseEntity.ok().build();
     }
 }

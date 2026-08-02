@@ -4,11 +4,18 @@ import io.github.ravocode.avoonce.core.IdempotencyManager;
 import io.github.ravocode.avoonce.core.domain.IdempotencyResponse;
 import io.github.ravocode.avoonce.core.exception.IdempotencyConflictException;
 import io.github.ravocode.avoonce.core.exception.IdempotencyMismatchException;
+import io.github.ravocode.avoonce.spring.annotation.Idempotent;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.method.HandlerMethod;
+import org.springframework.web.servlet.HandlerExecutionChain;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 import org.springframework.web.util.ContentCachingResponseWrapper;
 
 import java.io.IOException;
@@ -17,8 +24,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class IdempotencyFilter extends OncePerRequestFilter {
 
@@ -26,16 +31,33 @@ public class IdempotencyFilter extends OncePerRequestFilter {
 
     private final IdempotencyManager manager;
     private final IdempotencyProperties properties;
+    private final ObjectProvider<RequestMappingHandlerMapping> handlerMappingProvider;
+    private volatile RequestMappingHandlerMapping handlerMapping;
 
     public IdempotencyFilter(final IdempotencyManager manager, final IdempotencyProperties properties) {
+        this(manager, properties, null);
+    }
+
+    public IdempotencyFilter(final IdempotencyManager manager,
+                             final IdempotencyProperties properties,
+                             final ObjectProvider<RequestMappingHandlerMapping> handlerMappingProvider) {
         this.manager = manager;
         this.properties = properties;
+        this.handlerMappingProvider = handlerMappingProvider;
     }
 
     @Override
     protected void doFilterInternal(final HttpServletRequest request,
-            final HttpServletResponse response,
-            final FilterChain filterChain) throws ServletException, IOException {
+                                    final HttpServletResponse response,
+                                    final FilterChain filterChain) throws ServletException, IOException {
+
+        // Only process endpoints annotated with @Idempotent
+        if (!isIdempotentTarget(request)) {
+            log.debug("[idempotency] Endpoint '{}' is not annotated with @Idempotent, bypassing filter",
+                    request.getRequestURI());
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         final String key = request.getHeader(properties.getHeaderName());
 
@@ -122,5 +144,43 @@ public class IdempotencyFilter extends OncePerRequestFilter {
         } catch (final Exception e) {
             throw new ServletException(e);
         }
+    }
+
+    private boolean isIdempotentTarget(final HttpServletRequest request) {
+        final RequestMappingHandlerMapping mapping = getHandlerMapping();
+        if (mapping == null) {
+            return false;
+        }
+        try {
+            final HandlerExecutionChain chain = mapping.getHandler(request);
+            if (chain != null && chain.getHandler() instanceof HandlerMethod handlerMethod) {
+                if (handlerMethod.hasMethodAnnotation(Idempotent.class)
+                        || handlerMethod.getBeanType().isAnnotationPresent(Idempotent.class)) {
+                    return true;
+                }
+                // Check if any annotation named "Idempotent" is present
+                for (final java.lang.annotation.Annotation ann : handlerMethod.getMethod().getAnnotations()) {
+                    if (ann.annotationType().getSimpleName().equals("Idempotent")) {
+                        return true;
+                    }
+                }
+                for (final java.lang.annotation.Annotation ann : handlerMethod.getBeanType().getAnnotations()) {
+                    if (ann.annotationType().getSimpleName().equals("Idempotent")) {
+                        return true;
+                    }
+                }
+            }
+        } catch (final Exception e) {
+            log.debug("[idempotency] Unable to resolve handler mapping for request '{}': {}",
+                    request.getRequestURI(), e.getMessage());
+        }
+        return false;
+    }
+
+    private RequestMappingHandlerMapping getHandlerMapping() {
+        if (handlerMapping == null && handlerMappingProvider != null) {
+            handlerMapping = handlerMappingProvider.getIfAvailable();
+        }
+        return handlerMapping;
     }
 }

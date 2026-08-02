@@ -5,15 +5,12 @@ import io.github.ravocode.avoonce.acceptance.dummy.PaymentController;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.TestPropertySource;
 
+import java.net.URI;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -61,40 +58,54 @@ public class JdbcIdempotencyAcceptanceTest extends BaseIdempotencyAcceptanceTest
 
         try {
             int secondPort = secondContext.getEnvironment().getProperty("local.server.port", Integer.class);
-            TestRestTemplate secondRestTemplate = new TestRestTemplate();
-            
+
             String idempotencyKey = UUID.randomUUID().toString();
-            PaymentController.PaymentRequest request = new PaymentController.PaymentRequest();
-            request.accountId = "dist-123";
-            request.amount = 500.00;
+            String requestBody = "{\"accountId\":\"dist-123\",\"amount\":500.00}";
 
-            HttpHeaders headers = new HttpHeaders();
-            headers.set("Idempotency-Key", idempotencyKey);
-            HttpEntity<PaymentController.PaymentRequest> entity = new HttpEntity<>(request, headers);
+            HttpRequest req1 = HttpRequest.newBuilder()
+                    .uri(URI.create("http://localhost:" + port + "/api/payments"))
+                    .header("Content-Type", "application/json")
+                    .header("Idempotency-Key", idempotencyKey)
+                    .POST(HttpRequest.BodyPublishers.ofString(requestBody))
+                    .build();
 
-            String url1 = "/api/payments";
-            String url2 = "http://localhost:" + secondPort + "/api/payments";
+            HttpRequest req2 = HttpRequest.newBuilder()
+                    .uri(URI.create("http://localhost:" + secondPort + "/api/payments"))
+                    .header("Content-Type", "application/json")
+                    .header("Idempotency-Key", idempotencyKey)
+                    .POST(HttpRequest.BodyPublishers.ofString(requestBody))
+                    .build();
 
             // Fire requests to both instances concurrently
-            CompletableFuture<ResponseEntity<String>> future1 = CompletableFuture.supplyAsync(() ->
-                    restTemplate.exchange(url1, HttpMethod.POST, entity, String.class));
-            
-            CompletableFuture<ResponseEntity<String>> future2 = CompletableFuture.supplyAsync(() ->
-                    secondRestTemplate.exchange(url2, HttpMethod.POST, entity, String.class));
+            CompletableFuture<HttpResponse<String>> future1 = CompletableFuture.supplyAsync(() -> {
+                try {
+                    return httpClient.send(req1, HttpResponse.BodyHandlers.ofString());
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            });
+
+            CompletableFuture<HttpResponse<String>> future2 = CompletableFuture.supplyAsync(() -> {
+                try {
+                    return httpClient.send(req2, HttpResponse.BodyHandlers.ofString());
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            });
 
             CompletableFuture.allOf(future1, future2).join();
 
-            ResponseEntity<String> res1 = future1.get();
-            ResponseEntity<String> res2 = future2.get();
+            HttpResponse<String> res1 = future1.get();
+            HttpResponse<String> res2 = future2.get();
 
             // One should succeed (201 CREATED) and one should get a conflict (409) 
             // since they are processed simultaneously and locking prevents both from running.
-            boolean oneCreated = res1.getStatusCode() == HttpStatus.CREATED || res2.getStatusCode() == HttpStatus.CREATED;
-            boolean oneConflict = res1.getStatusCode() == HttpStatus.CONFLICT || res2.getStatusCode() == HttpStatus.CONFLICT;
+            boolean oneCreated = res1.statusCode() == 201 || res2.statusCode() == 201;
+            boolean oneConflict = res1.statusCode() == 409 || res2.statusCode() == 409;
 
             assertTrue(oneCreated, "One request should succeed across distributed instances");
             assertTrue(oneConflict, "One request should return 409 Conflict across distributed instances");
-            
+
             // Check process count on both controllers to ensure it was only processed EXACTLY once globally
             int count1 = paymentController.getProcessCount();
             int count2 = secondContext.getBean(PaymentController.class).getProcessCount();

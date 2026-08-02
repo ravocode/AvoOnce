@@ -1,23 +1,23 @@
 # Idempotency Spring Boot Starter
 
-This module provides seamless, zero-code integration of the AvoOnce Idempotency library for Spring Boot applications.
+This module provides seamless, annotation-driven integration of the AvoOnce Idempotency library for Spring Boot applications.
 
 ## Overview
 
 The `idempotency-spring-boot-starter` auto-configures the core `IdempotencyManager` and injects an `IdempotencyFilter` (a standard Servlet `OncePerRequestFilter`) into your Spring Web MVC application. 
 
-Because it operates at the HTTP filter layer, it completely decouples idempotency logic from your business code. You do not need to add any annotations or modify your `@RestController` classes.
+AvoOnce operates selectively: only controller classes or handler methods annotated with `@Idempotent` are intercepted and protected. All other endpoints in your application bypass the idempotency filter completely.
 
 ## How It Works
 
-1.  **Interception:** The `IdempotencyFilter` intercepts all incoming HTTP requests.
-2.  **Detection:** If the `Idempotency-Key` header is present, it hands the request off to the core state machine.
+1.  **Inspection:** The `IdempotencyFilter` inspects the target handler method for the `@Idempotent` annotation.
+2.  **Detection:** If `@Idempotent` is present and an `Idempotency-Key` header is provided, it hands the request off to the core state machine.
 3.  **Caching:** It uses Spring's `ContentCachingResponseWrapper` to capture the outgoing HTTP status, headers, and body bytes.
-4.  **Replay:** On a duplicate request, it bypasses the Spring `DispatcherServlet` entirely and writes the cached raw bytes and headers directly back to the `HttpServletResponse`.
+4.  **Replay:** On a duplicate request, it bypasses the controller entirely and writes the cached raw bytes and headers directly back to the `HttpServletResponse`.
 
 ## Installation
 
-You must include this starter along with a chosen storage implementation (e.g., `idempotency-caffeine` or `idempotency-jdbc`):
+Include this starter along with a chosen storage implementation (e.g., `idempotency-caffeine`, `idempotency-jdbc`, or `idempotency-redis`):
 
 ```xml
 <dependency>
@@ -30,6 +30,32 @@ You must include this starter along with a chosen storage implementation (e.g., 
     <artifactId>idempotency-caffeine</artifactId>
     <version>1.0.0</version>
 </dependency>
+```
+
+## Selective Protection with `@Idempotent`
+
+Annotate your target controller methods or classes with `@Idempotent`:
+
+```java
+import io.github.ravocode.avoonce.spring.annotation.Idempotent;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/payments")
+public class PaymentController {
+
+    @PostMapping
+    @Idempotent // Protected by AvoOnce
+    public ResponseEntity<PaymentResponse> processPayment(@RequestBody PaymentRequest req) {
+        return ResponseEntity.status(201).body(service.process(req));
+    }
+
+    @PostMapping("/unprotected")
+    // Unannotated -> completely bypasses idempotency filter even if header is present
+    public ResponseEntity<PaymentResponse> unrecorded(@RequestBody PaymentRequest req) {
+        return ResponseEntity.ok(service.process(req));
+    }
+}
 ```
 
 ## Storage Backend Selection
@@ -49,7 +75,7 @@ avoonce:
 
 ## Configuration Properties
 
-You can customize the starter's behavior using your `application.yml` or `application.properties`. Below are the default values:
+You can customize the starter's behavior using your `application.yml` or `application.properties`:
 
 ```yaml
 avoonce:
@@ -72,8 +98,8 @@ avoonce:
     # the same key but have a different payload (HTTP 422).
     hash-body: true
     
-    # If true, requests without the Idempotency-Key header are rejected (HTTP 400).
-    # If false, they simply bypass the idempotency filter.
+    # If true, requests to @Idempotent endpoints without the Idempotency-Key header are rejected (HTTP 400).
+    # If false, unkeyed requests simply bypass the idempotency logic.
     enforce: false
     
     filter:
@@ -89,24 +115,4 @@ avoonce:
         enabled: true
         # Frequency of the eviction task in milliseconds (default: 1 hour)
         interval-ms: 3600000
-```
-
-## Advanced: Custom Configuration
-
-If you need to customize the `IdempotencyFilter` registration (for example, to restrict it to specific URL patterns rather than `/*`), you can define your own `FilterRegistrationBean` in your Spring context. When you do this, the starter will automatically back off and use your bean.
-
-```java
-@Bean
-public FilterRegistrationBean<IdempotencyFilter> customIdempotencyFilter(
-        IdempotencyManager manager, IdempotencyProperties properties) {
-        
-    FilterRegistrationBean<IdempotencyFilter> registrationBean = new FilterRegistrationBean<>();
-    registrationBean.setFilter(new IdempotencyFilter(manager, properties));
-    
-    // Only apply idempotency to the payments API
-    registrationBean.addUrlPatterns("/api/payments/*");
-    registrationBean.setOrder(Ordered.HIGHEST_PRECEDENCE + 10);
-    
-    return registrationBean;
-}
 ```

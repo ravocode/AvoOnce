@@ -33,11 +33,9 @@
             <groupId>io.github.ravocode.avoonce</groupId>
             <artifactId>idempotency-redis</artifactId>
         </dependency>
-        <!-- For Redis Example: explicitly include a driver (Jedis or Lettuce) -->
         <dependency>
             <groupId>redis.clients</groupId>
             <artifactId>jedis</artifactId>
-            <version>5.1.0</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>

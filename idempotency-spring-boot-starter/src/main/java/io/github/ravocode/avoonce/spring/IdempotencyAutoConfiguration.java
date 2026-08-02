@@ -3,6 +3,7 @@ package io.github.ravocode.avoonce.spring;
 import io.github.ravocode.avoonce.core.IdempotencyManager;
 import io.github.ravocode.avoonce.core.config.IdempotencyConfig;
 import io.github.ravocode.avoonce.core.spi.IdempotencyRepository;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
@@ -14,6 +15,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.Ordered;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
 import javax.sql.DataSource;
 
@@ -90,9 +92,11 @@ public class IdempotencyAutoConfiguration {
     @ConditionalOnProperty(prefix = "avoonce.idempotency.filter", name = "enabled", matchIfMissing = true)
     @ConditionalOnClass(name = "jakarta.servlet.Filter")
     public FilterRegistrationBean<IdempotencyFilter> idempotencyFilterRegistration(
-            IdempotencyManager manager, IdempotencyProperties properties) {
+            IdempotencyManager manager,
+            IdempotencyProperties properties,
+            ObjectProvider<RequestMappingHandlerMapping> handlerMappingProvider) {
         FilterRegistrationBean<IdempotencyFilter> registrationBean = new FilterRegistrationBean<>();
-        registrationBean.setFilter(new IdempotencyFilter(manager, properties));
+        registrationBean.setFilter(new IdempotencyFilter(manager, properties, handlerMappingProvider));
         registrationBean.addUrlPatterns("/*");
         registrationBean.setOrder(Ordered.HIGHEST_PRECEDENCE + 10);
         return registrationBean;

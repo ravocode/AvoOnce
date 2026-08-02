@@ -51,17 +51,18 @@
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
         <caffeine.version>3.1.8</caffeine.version>
-        <junit.version>5.10.2</junit.version>
-        <spring.boot.version>3.3.0</spring.boot.version>
+        <spring.boot.version>4.0.0</spring.boot.version>
     </properties>
 
     <modules>
         <module>idempotency-core</module>
         <module>idempotency-caffeine</module>
+        <module>idempotency-jaxrs</module>
         <module>idempotency-jdbc</module>
         <module>idempotency-redis</module>
         <module>idempotency-spring-boot-starter</module>
         <module>idempotency-spring-boot-sample</module>
+        <module>idempotency-quarkus-sample</module>
         <module>idempotency-acceptance-tests</module>
     </modules>
 
@@ -78,18 +79,6 @@
                 <groupId>com.github.ben-manes.caffeine</groupId>
                 <artifactId>caffeine</artifactId>
                 <version>${caffeine.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.junit.jupiter</groupId>
-                <artifactId>junit-jupiter-api</artifactId>
-                <version>${junit.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.junit.jupiter</groupId>
-                <artifactId>junit-jupiter-engine</artifactId>
-                <version>${junit.version}</version>
-                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.mockito</groupId>
@@ -130,6 +119,11 @@
                     </exclusion>
                 </exclusions>
             </dependency>
+            <dependency>
+                <groupId>com.google.errorprone</groupId>
+                <artifactId>error_prone_annotations</artifactId>
+                <version>2.27.0</version>
+            </dependency>
 
 
             <!-- AvoOnce Internal Modules -->
@@ -151,6 +145,11 @@
             <dependency>
                 <groupId>io.github.ravocode.avoonce</groupId>
                 <artifactId>idempotency-redis</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.github.ravocode.avoonce</groupId>
+                <artifactId>idempotency-jaxrs</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
