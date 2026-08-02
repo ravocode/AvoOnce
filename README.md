@@ -64,6 +64,33 @@ graph TD
 ```
 
 ---
+### 📦 How to Get It
+
+AvoOnce is currently hosted on GitHub Packages, which requires authentication. **This will be changed in the future to Maven Central**.
+
+**GitHub Packages Authentication Required**
+
+1. Generate a [GitHub Personal Access Token](https://github.com/settings/tokens) with `read:packages` scope.
+2. Add the token to your `~/.m2/settings.xml`:
+```xml
+<servers>
+    <server>
+        <id>github</id>
+        <username>YOUR_GITHUB_USERNAME</username>
+        <password>YOUR_PAT</password>
+    </server>
+</servers>
+```
+
+3. Add the repository to your `pom.xml`:
+```xml
+<repositories>
+    <repository>
+        <id>github</id>
+        <url>https://maven.pkg.github.com/ravocode/AvoOnce</url>
+    </repository>
+</repositories>
+```
 
 ## Quick Start: Spring Boot 4
 
