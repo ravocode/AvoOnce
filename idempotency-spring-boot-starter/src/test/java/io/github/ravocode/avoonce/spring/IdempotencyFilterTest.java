@@ -147,6 +147,70 @@ class IdempotencyFilterTest {
         assertEquals(2, controller.unannotatedExecutionCount.get(), "Unannotated endpoint should bypass filter");
     }
 
+    @Test
+    void testIdempotencyFilter_rejectsBlankKey() throws Exception {
+        mockMvc.perform(post("/test")
+                        .header("Idempotency-Key", "   ")
+                        .content("{\"data\":\"test\"}")
+                        .contentType("application/json"))
+                .andExpect(status().isBadRequest());
+        assertEquals(0, controller.executionCount.get(), "Controller should not execute for a blank key");
+    }
+
+    @Test
+    void testIdempotencyFilter_rejectsKeyExceedingMaxLength() throws Exception {
+        IdempotencyProperties props = new IdempotencyProperties();
+        props.setMaxKeyLength(16);
+        MockMvc strictMvc = buildMvcWith(props);
+
+        strictMvc.perform(post("/test")
+                        .header("Idempotency-Key", "this-key-is-definitely-longer-than-sixteen-characters")
+                        .content("{\"data\":\"test\"}")
+                        .contentType("application/json"))
+                .andExpect(status().isBadRequest());
+        assertEquals(0, controller.executionCount.get(), "Controller should not execute for an oversized key");
+
+        // A key within the limit passes through normally
+        strictMvc.perform(post("/test")
+                        .header("Idempotency-Key", "short-key-1")
+                        .content("{\"data\":\"test\"}")
+                        .contentType("application/json"))
+                .andExpect(status().isCreated());
+        assertEquals(1, controller.executionCount.get(), "A key within the limit should be accepted");
+    }
+
+    @Test
+    void testIdempotencyFilter_rejectsKeyFailingPattern() throws Exception {
+        IdempotencyProperties props = new IdempotencyProperties();
+        props.setKeyPattern("^[a-fA-F0-9\\-]{36}$"); // UUID format
+        MockMvc strictMvc = buildMvcWith(props);
+
+        strictMvc.perform(post("/test")
+                        .header("Idempotency-Key", "not-a-uuid")
+                        .content("{\"data\":\"test\"}")
+                        .contentType("application/json"))
+                .andExpect(status().isBadRequest());
+        assertEquals(0, controller.executionCount.get(), "Controller should not execute for a non-matching key");
+
+        // A UUID-shaped key passes validation
+        strictMvc.perform(post("/test")
+                        .header("Idempotency-Key", "11111111-2222-3333-4444-555555555555")
+                        .content("{\"data\":\"test\"}")
+                        .contentType("application/json"))
+                .andExpect(status().isCreated());
+        assertEquals(1, controller.executionCount.get(), "A matching key should be accepted");
+    }
+
+    private MockMvc buildMvcWith(IdempotencyProperties props) {
+        IdempotencyManager localManager = new IdempotencyManager(
+                new CaffeineIdempotencyRepository(new IdempotencyConfig()));
+        IdempotencyFilter strictFilter = new IdempotencyFilter(localManager, props,
+                context.getBeanProvider(RequestMappingHandlerMapping.class));
+        return MockMvcBuilders.webAppContextSetup(context)
+                .addFilters(strictFilter)
+                .build();
+    }
+
     @Configuration
     @org.springframework.web.servlet.config.annotation.EnableWebMvc
     static class TestConfig {
