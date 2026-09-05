@@ -30,18 +30,6 @@ AvoOnce is a lightweight, framework-agnostic distributed idempotency library for
 
 ---
 
-## Why AvoOnce? (The Gaps It Fills)
-
-| Challenge | Distributed Locks Alone (e.g. ShedLock / Redis Lock) | AvoOnce Idempotency Engine |
-| :--- | :--- | :--- |
-| **Dropped Responses** | ❌ Lock releases after execution; client retry fails or re-executes | ✅ Caches & replays exact status, headers, and body bytes |
-| **Concurrent Duplicates** | ⚠️ Blocks or rejects; retry still doesn't get cached response | ✅ Returns `409 Conflict` during execution, cached result on retry |
-| **Payload Mutation** | ❌ Key reused with different payload executes or corrupts state | ✅ SHA-256 body hash validation rejects tampered requests (`422`) |
-| **Framework Flexibility** | ❌ Coupled to specific frameworks or annotations | ✅ Framework-agnostic core SPI + Spring Boot, Quarkus, Dropwizard & JAX-RS adapters |
-| **Selective Scope** | ⚠️ Complex custom aspect logic required | ✅ Clean `@Idempotent` annotation on methods or controller classes |
-
----
-
 ## Architecture
 
 ```mermaid
