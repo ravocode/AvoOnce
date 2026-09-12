@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 /**
  * Spring Web Servlet Filter that provides selective idempotency protection for
@@ -43,6 +44,7 @@ public class IdempotencyFilter extends OncePerRequestFilter {
     private final IdempotencyManager manager;
     private final IdempotencyProperties properties;
     private final ObjectProvider<RequestMappingHandlerMapping> handlerMappingProvider;
+    private final Pattern keyPattern;
     private volatile RequestMappingHandlerMapping handlerMapping;
 
     /**
@@ -70,6 +72,9 @@ public class IdempotencyFilter extends OncePerRequestFilter {
         this.manager = manager;
         this.properties = properties;
         this.handlerMappingProvider = handlerMappingProvider;
+        this.keyPattern = (properties.getKeyPattern() == null || properties.getKeyPattern().isBlank())
+                ? null
+                : Pattern.compile(properties.getKeyPattern());
     }
 
     @Override
@@ -97,6 +102,14 @@ public class IdempotencyFilter extends OncePerRequestFilter {
             }
             log.debug("[idempotency] No idempotency key present, bypassing filter");
             filterChain.doFilter(request, response);
+            return;
+        }
+
+        final String validationError = validateKey(key);
+        if (validationError != null) {
+            log.debug("[idempotency] Rejecting request: {}", validationError);
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().write(validationError);
             return;
         }
 
@@ -170,6 +183,28 @@ public class IdempotencyFilter extends OncePerRequestFilter {
         } catch (final Exception e) {
             throw new ServletException(e);
         }
+    }
+
+    /**
+     * Validates the extracted idempotency key against the configured
+     * constraints (non-blank, maximum length, optional pattern).
+     *
+     * @param key the raw key extracted from the request.
+     * @return an error message when the key is invalid, or {@code null} when
+     *         the key passes validation.
+     */
+    private String validateKey(final String key) {
+        if (key.isBlank()) {
+            return "Invalid " + properties.getHeaderName() + " header: key must not be blank";
+        }
+        if (key.length() > properties.getMaxKeyLength()) {
+            return "Invalid " + properties.getHeaderName() + " header: key exceeds maximum length of "
+                    + properties.getMaxKeyLength() + " characters";
+        }
+        if (keyPattern != null && !keyPattern.matcher(key).matches()) {
+            return "Invalid " + properties.getHeaderName() + " header: key does not match required pattern";
+        }
+        return null;
     }
 
     private boolean isIdempotentTarget(final HttpServletRequest request) {

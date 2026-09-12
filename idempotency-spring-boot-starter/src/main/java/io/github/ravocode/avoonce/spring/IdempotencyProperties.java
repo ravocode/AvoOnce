@@ -29,6 +29,22 @@ public class IdempotencyProperties {
     private boolean enforce = false;
 
     /**
+     * Optional regular expression the idempotency key must fully match, e.g.
+     * {@code ^[a-fA-F0-9\-]{36}$} to require UUID-shaped keys
+     * ({@code avoonce.idempotency.key-pattern}). {@code null} or blank (the
+     * default) disables pattern validation.
+     */
+    private String keyPattern;
+
+    /**
+     * Maximum accepted idempotency key length
+     * ({@code avoonce.idempotency.max-key-length}). Requests whose key exceeds
+     * this length are rejected with HTTP 400, guarding the backing store
+     * against abusive keys. Default: 255.
+     */
+    private int maxKeyLength = 255;
+
+    /**
      * Which backing store to use: {@code auto}, {@code caffeine}, {@code jdbc}, or {@code redis}.
      *
      * <ul>
@@ -130,6 +146,32 @@ public class IdempotencyProperties {
      * @param enforce {@code true} to reject missing keys
      */
     public void setEnforce(boolean enforce) { this.enforce = enforce; }
+    /**
+     * Returns the regular expression the idempotency key must fully match, or
+     * {@code null} when pattern validation is disabled.
+     *
+     * @return the key validation pattern
+     */
+    public String getKeyPattern() { return keyPattern; }
+    /**
+     * Sets the regular expression the idempotency key must fully match.
+     * {@code null} or blank disables pattern validation.
+     *
+     * @param keyPattern the key validation pattern to use
+     */
+    public void setKeyPattern(String keyPattern) { this.keyPattern = keyPattern; }
+    /**
+     * Returns the maximum accepted idempotency key length.
+     *
+     * @return the maximum key length
+     */
+    public int getMaxKeyLength() { return maxKeyLength; }
+    /**
+     * Sets the maximum accepted idempotency key length.
+     *
+     * @param maxKeyLength the maximum key length to use
+     */
+    public void setMaxKeyLength(int maxKeyLength) { this.maxKeyLength = maxKeyLength; }
     /**
      * Returns the selected backing store name.
      *
@@ -253,4 +295,3 @@ public class IdempotencyProperties {
         public void setIntervalMs(long intervalMs) { this.intervalMs = intervalMs; }
     }
 }
-
