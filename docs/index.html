@@ -81,7 +81,7 @@
   </section>
 
   <!-- Why AvoOnce? Comparison Section -->
-  <section class="container" id="why">
+  <section class="container" id="why" hidden="true">
     <div class="section-header">
       <div class="section-tag">Why AvoOnce?</div>
       <h2 class="section-title">The Gaps In Traditional Distributed Locks</h2>
@@ -202,13 +202,13 @@
           <div class="code-title">1. Add Dependency (pom.xml)</div>
           <button class="copy-btn">Copy</button>
           <pre><code>&lt;dependency&gt;
-    &lt;groupId&gt;io.github.ravocode.avoonce&lt;/groupId&gt;
-    &lt;artifactId&gt;idempotency-spring-boot-starter&lt;/artifactId&gt;
+    &lt;groupId&gt;io.github.ravocode&lt;/groupId&gt;
+    &lt;artifactId&gt;avoonce-spring-boot-starter&lt;/artifactId&gt;
     &lt;version&gt;1.0.0&lt;/version&gt;
 &lt;/dependency&gt;
 &lt;dependency&gt;
-    &lt;groupId&gt;io.github.ravocode.avoonce&lt;/groupId&gt;
-    &lt;artifactId&gt;idempotency-caffeine&lt;/artifactId&gt;
+    &lt;groupId&gt;io.github.ravocode&lt;/groupId&gt;
+    &lt;artifactId&gt;avoonce-caffeine&lt;/artifactId&gt;
     &lt;version&gt;1.0.0&lt;/version&gt;
 &lt;/dependency&gt;</code></pre>
         </div>
@@ -216,7 +216,7 @@
         <div class="code-wrapper">
           <div class="code-title">2. Annotate Controller Endpoints</div>
           <button class="copy-btn">Copy</button>
-          <pre><code>import io.github.ravocode.avoonce.spring.annotation.Idempotent;
+          <pre><code>import io.github.ravocode.spring.annotation.Idempotent;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 
@@ -239,13 +239,13 @@ public class PaymentController {
           <div class="code-title">1. Add Dependency (pom.xml)</div>
           <button class="copy-btn">Copy</button>
           <pre><code>&lt;dependency&gt;
-    &lt;groupId&gt;io.github.ravocode.avoonce&lt;/groupId&gt;
-    &lt;artifactId&gt;idempotency-jaxrs&lt;/artifactId&gt;
+    &lt;groupId&gt;io.github.ravocode&lt;/groupId&gt;
+    &lt;artifactId&gt;avoonce-jaxrs&lt;/artifactId&gt;
     &lt;version&gt;1.0.0&lt;/version&gt;
 &lt;/dependency&gt;
 &lt;dependency&gt;
-    &lt;groupId&gt;io.github.ravocode.avoonce&lt;/groupId&gt;
-    &lt;artifactId&gt;idempotency-caffeine&lt;/artifactId&gt;
+    &lt;groupId&gt;io.github.ravocode&lt;/groupId&gt;
+    &lt;artifactId&gt;avoonce-caffeine&lt;/artifactId&gt;
     &lt;version&gt;1.0.0&lt;/version&gt;
 &lt;/dependency&gt;</code></pre>
         </div>
@@ -289,7 +289,7 @@ public void run(MyConfiguration config, Environment environment) {
         <div class="code-wrapper">
           <div class="code-title">2. Annotate Resource Methods</div>
           <button class="copy-btn">Copy</button>
-          <pre><code>import io.github.ravocode.avoonce.jaxrs.Idempotent;
+          <pre><code>import io.github.ravocode.jaxrs.Idempotent;
 import jakarta.ws.rs.*;
 
 @Path("/api/orders")
