@@ -1,12 +1,12 @@
-# Idempotency Redis Storage
+# AvoOnce Redis Storage
 
 This module provides a Redis-backed implementation of the `IdempotencyRepository` SPI for AvoOnce using an adapter pattern that supports popular clients like [Jedis](https://github.com/redis/jedis) and [Lettuce](https://github.com/lettuce-io/lettuce-core).
 
 ## Overview
 
-The `idempotency-redis` module persists idempotency records in a Redis database. It serializes the idempotency state, request hashes, and cached HTTP responses using a custom, lightweight binary protocol that avoids heavy framework dependencies like Jackson or Gson. This makes it a great choice when you want high-performance, distributed idempotency checks across multiple application instances with very low latency.
+The `avoonce-redis` module persists idempotency records in a Redis database. It serializes the idempotency state, request hashes, and cached HTTP responses using a custom, lightweight binary protocol that avoids heavy framework dependencies like Jackson or Gson. This makes it a great choice when you want high-performance, distributed idempotency checks across multiple application instances with very low latency.
 
-It has **no external framework dependencies** other than `idempotency-core` and `slf4j-api`. Redis client libraries (`jedis` and `lettuce-core`) are marked as optional, allowing you to plug in your preferred client.
+It has **no external framework dependencies** other than `avoonce-core` and `slf4j-api`. Redis client libraries (`jedis` and `lettuce-core`) are marked as optional, allowing you to plug in your preferred client.
 
 ### Supported Datastoreso
 
@@ -22,8 +22,8 @@ Add the Redis storage backend to your `pom.xml`:
 
 ```xml
 <dependency>
-    <groupId>io.github.ravocode.avoonce</groupId>
-    <artifactId>idempotency-redis</artifactId>
+    <groupId>io.github.ravocode</groupId>
+    <artifactId>avoonce-redis</artifactId>
     <version>1.0.0</version>
 </dependency>
 ```
@@ -32,8 +32,8 @@ If you are using Spring Boot, be sure to include the starter as well:
 
 ```xml
 <dependency>
-    <groupId>io.github.ravocode.avoonce</groupId>
-    <artifactId>idempotency-spring-boot-starter</artifactId>
+    <groupId>io.github.ravocode</groupId>
+    <artifactId>avoonce-spring-boot-starter</artifactId>
     <version>1.0.0</version>
 </dependency>
 ```
@@ -54,7 +54,7 @@ This module uses an adapter pattern (`RedisOperations`) to remain agnostic of th
 
 ### With Spring Boot
 
-If you are using `idempotency-spring-boot-starter`, AvoOnce will automatically detect your client and configure the repository. Simply expose your client as a Spring `@Bean`:
+If you are using `avoonce-spring-boot-starter`, AvoOnce will automatically detect your client and configure the repository. Simply expose your client as a Spring `@Bean`:
 
 **Jedis Example:**
 ```java

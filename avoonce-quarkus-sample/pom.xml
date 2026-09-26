@@ -4,13 +4,13 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>io.github.ravocode.avoonce</groupId>
-        <artifactId>idempotency-parent</artifactId>
+        <groupId>io.github.ravocode</groupId>
+        <artifactId>avoonce-parent</artifactId>
         <version>1.0.0</version>
     </parent>
 
-    <artifactId>idempotency-quarkus-sample</artifactId>
-    <name>Idempotency Quarkus Sample</name>
+    <artifactId>avoonce-quarkus-sample</artifactId>
+    <name>AvoOnce Quarkus Sample</name>
     <description>Sample Quarkus application showcasing AvoOnce JAX-RS Idempotency</description>
 
     <properties>
@@ -33,12 +33,12 @@
     <dependencies>
         <!-- AvoOnce JAX-RS and Storage -->
         <dependency>
-            <groupId>io.github.ravocode.avoonce</groupId>
-            <artifactId>idempotency-jaxrs</artifactId>
+            <groupId>io.github.ravocode</groupId>
+            <artifactId>avoonce-jaxrs</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.github.ravocode.avoonce</groupId>
-            <artifactId>idempotency-caffeine</artifactId>
+            <groupId>io.github.ravocode</groupId>
+            <artifactId>avoonce-caffeine</artifactId>
         </dependency>
 
         <!-- Quarkus REST & JSON support -->

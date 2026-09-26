@@ -1,12 +1,12 @@
-# Idempotency JDBC Storage
+# AvoOnce JDBC Storage
 
 This module provides a relational database implementation of the `IdempotencyRepository` SPI for AvoOnce using plain JDBC.
 
 ## Overview
 
-The `idempotency-jdbc` module persists idempotency records in a standard relational database table. It uses a single table (`idempotency_records`) and relies on standard JDBC and SQL `BLOB` (or equivalent) for payload caching. This makes it a great choice when your application already uses a relational database and you want to ensure distributed lock safety across multiple instances without adding new infrastructure like Redis.
+The `avoonce-jdbc` module persists idempotency records in a standard relational database table. It uses a single table (`idempotency_records`) and relies on standard JDBC and SQL `BLOB` (or equivalent) for payload caching. This makes it a great choice when your application already uses a relational database and you want to ensure distributed lock safety across multiple instances without adding new infrastructure like Redis.
 
-It has **no dependencies** other than `idempotency-core` and the standard JDK `java.sql` classes, making it completely framework-agnostic.
+It has **no dependencies** other than `avoonce-core` and the standard JDK `java.sql` classes, making it completely framework-agnostic.
 
 ### Supported Databases
 
@@ -24,8 +24,8 @@ Add the JDBC storage backend to your `pom.xml`:
 
 ```xml
 <dependency>
-    <groupId>io.github.ravocode.avoonce</groupId>
-    <artifactId>idempotency-jdbc</artifactId>
+    <groupId>io.github.ravocode</groupId>
+    <artifactId>avoonce-jdbc</artifactId>
     <version>1.0.0</version>
 </dependency>
 ```
@@ -34,8 +34,8 @@ If you are using Spring Boot, be sure to include the starter as well:
 
 ```xml
 <dependency>
-    <groupId>io.github.ravocode.avoonce</groupId>
-    <artifactId>idempotency-spring-boot-starter</artifactId>
+    <groupId>io.github.ravocode</groupId>
+    <artifactId>avoonce-spring-boot-starter</artifactId>
     <version>1.0.0</version>
 </dependency>
 ```
@@ -46,7 +46,7 @@ AvoOnce needs a table named `idempotency_records` to store its state.
 
 ### Spring Boot
 
-If you are using `idempotency-spring-boot-starter`, the starter will automatically execute the DDL to create the table and index at startup using the `JdbcIdempotencyTableInitializer`. The initializer automatically detects the database vendor via JDBC metadata and maps the `response_body` column type accordingly (e.g., `BYTEA` for PostgreSQL, `BLOB` for others).
+If you are using `avoonce-spring-boot-starter`, the starter will automatically execute the DDL to create the table and index at startup using the `JdbcIdempotencyTableInitializer`. The initializer automatically detects the database vendor via JDBC metadata and maps the `response_body` column type accordingly (e.g., `BYTEA` for PostgreSQL, `BLOB` for others).
 
 You can disable this behavior by setting the following property in your `application.yml` or `application.properties`:
 

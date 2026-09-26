@@ -4,68 +4,57 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>io.github.ravocode.avoonce</groupId>
-        <artifactId>idempotency-parent</artifactId>
+        <groupId>io.github.ravocode</groupId>
+        <artifactId>avoonce-parent</artifactId>
         <version>1.0.0</version>
     </parent>
 
-    <artifactId>idempotency-spring-boot-starter</artifactId>
+    <artifactId>avoonce-acceptance-tests</artifactId>
+
+    <properties>
+        <maven.deploy.skip>true</maven.deploy.skip>
+    </properties>
 
     <dependencies>
-        <!-- Idempotency Core & Default Implementation -->
+        <!-- AvoOnce Modules -->
         <dependency>
-            <groupId>io.github.ravocode.avoonce</groupId>
-            <artifactId>idempotency-core</artifactId>
+            <groupId>io.github.ravocode</groupId>
+            <artifactId>avoonce-spring-boot-starter</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.github.ravocode.avoonce</groupId>
-            <artifactId>idempotency-caffeine</artifactId>
-            <optional>true</optional>
+            <groupId>io.github.ravocode</groupId>
+            <artifactId>avoonce-caffeine</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.github.ravocode.avoonce</groupId>
-            <artifactId>idempotency-jdbc</artifactId>
-            <optional>true</optional>
+            <groupId>io.github.ravocode</groupId>
+            <artifactId>avoonce-jdbc</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.github.ravocode.avoonce</groupId>
-            <artifactId>idempotency-redis</artifactId>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>io.lettuce</groupId>
-            <artifactId>lettuce-core</artifactId>
-            <version>6.3.2.RELEASE</version>
-            <optional>true</optional>
+            <groupId>io.github.ravocode</groupId>
+            <artifactId>avoonce-redis</artifactId>
         </dependency>
         <dependency>
             <groupId>redis.clients</groupId>
             <artifactId>jedis</artifactId>
-            <optional>true</optional>
+            <scope>test</scope>
         </dependency>
 
-        <!-- Spring Boot Dependencies -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-autoconfigure</artifactId>
-        </dependency>
+        <!-- Spring Boot Web for dummy app -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
-            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-jdbc</artifactId>
-            <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-configuration-processor</artifactId>
-            <optional>true</optional>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>test</scope>
         </dependency>
 
-        <!-- Test Dependencies -->
+        <!-- Testing -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
@@ -81,5 +70,18 @@
             <artifactId>junit-jupiter-engine</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers</artifactId>
+            <version>1.19.7</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>1.19.7</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
+
 </project>

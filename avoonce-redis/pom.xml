@@ -4,17 +4,17 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>io.github.ravocode.avoonce</groupId>
-        <artifactId>idempotency-parent</artifactId>
+        <groupId>io.github.ravocode</groupId>
+        <artifactId>avoonce-parent</artifactId>
         <version>1.0.0</version>
     </parent>
 
-    <artifactId>idempotency-redis</artifactId>
+    <artifactId>avoonce-redis</artifactId>
 
     <dependencies>
         <dependency>
-            <groupId>io.github.ravocode.avoonce</groupId>
-            <artifactId>idempotency-core</artifactId>
+            <groupId>io.github.ravocode</groupId>
+            <artifactId>avoonce-core</artifactId>
         </dependency>
         <dependency>
             <groupId>redis.clients</groupId>

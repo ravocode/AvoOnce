@@ -37,48 +37,25 @@ graph TD
     Client((Client)) -->|"HTTP Request with<br/>Idempotency-Key"| Web[Web Layer]
     
     subgraph Framework Integrations
-        Web -->|"@Idempotent"| SB[idempotency-spring-boot-starter<br/>Spring Boot MVC]
-        Web -->|"@Idempotent"| JAX[idempotency-jaxrs<br/>Quarkus / Dropwizard / Jersey / RESTEasy]
+        Web -->|"@Idempotent"| SB[avoonce-spring-boot-starter<br/>Spring Boot MVC]
+        Web -->|"@Idempotent"| JAX[avoonce-jaxrs<br/>Quarkus / Dropwizard / Jersey / RESTEasy]
     end
     
-    SB --> Core[idempotency-core<br/>IdempotencyManager & State Machine]
+    SB --> Core[avoonce-core<br/>IdempotencyManager & State Machine]
     JAX --> Core
     
     subgraph Storage Backends SPI
-        Core -->|SPI| Caff[idempotency-caffeine<br/>In-Memory]
-        Core -->|SPI| JDBC[idempotency-jdbc<br/>PostgreSQL / MySQL / H2 / Oracle]
-        Core -->|SPI| Red[idempotency-redis<br/>Distributed Redis]
+        Core -->|SPI| Caff[avoonce-caffeine<br/>In-Memory]
+        Core -->|SPI| JDBC[avoonce-jdbc<br/>PostgreSQL / MySQL / H2 / Oracle]
+        Core -->|SPI| Red[avoonce-redis<br/>Distributed Redis]
     end
 ```
 
 ---
 ### 📦 How to Get It
 
-AvoOnce is currently hosted on GitHub Packages, which requires authentication. **This will be changed in the future to Maven Central**.
+AvoOnce is published to **Maven Central**. You do not need to configure any custom repositories in your build system. Simply add the relevant dependencies to your project as shown in the Quick Start sections below.
 
-**GitHub Packages Authentication Required**
-
-1. Generate a [GitHub Personal Access Token](https://github.com/settings/tokens) with `read:packages` scope.
-2. Add the token to your `~/.m2/settings.xml`:
-```xml
-<servers>
-    <server>
-        <id>github</id>
-        <username>YOUR_GITHUB_USERNAME</username>
-        <password>YOUR_PAT</password>
-    </server>
-</servers>
-```
-
-3. Add the repository to your `pom.xml`:
-```xml
-<repositories>
-    <repository>
-        <id>github</id>
-        <url>https://maven.pkg.github.com/ravocode/AvoOnce</url>
-    </repository>
-</repositories>
-```
 
 ## Quick Start: Spring Boot 4
 
@@ -87,30 +64,30 @@ AvoOnce is currently hosted on GitHub Packages, which requires authentication. *
 ```xml
 <!-- Spring Boot Starter -->
 <dependency>
-    <groupId>io.github.ravocode.avoonce</groupId>
-    <artifactId>idempotency-spring-boot-starter</artifactId>
+    <groupId>io.github.ravocode</groupId>
+    <artifactId>avoonce-spring-boot-starter</artifactId>
     <version>1.0.0</version>
 </dependency>
 
 <!-- Choose a Storage Backend -->
 <!-- Option A: In-Memory (Caffeine) -->
 <dependency>
-    <groupId>io.github.ravocode.avoonce</groupId>
-    <artifactId>idempotency-caffeine</artifactId>
+    <groupId>io.github.ravocode</groupId>
+    <artifactId>avoonce-caffeine</artifactId>
     <version>1.0.0</version>
 </dependency>
 
 <!-- Option B: Relational DB (JDBC) -->
 <dependency>
-    <groupId>io.github.ravocode.avoonce</groupId>
-    <artifactId>idempotency-jdbc</artifactId>
+    <groupId>io.github.ravocode</groupId>
+    <artifactId>avoonce-jdbc</artifactId>
     <version>1.0.0</version>
 </dependency>
 
 <!-- Option C: Distributed Redis -->
 <dependency>
-    <groupId>io.github.ravocode.avoonce</groupId>
-    <artifactId>idempotency-redis</artifactId>
+    <groupId>io.github.ravocode</groupId>
+    <artifactId>avoonce-redis</artifactId>
     <version>1.0.0</version>
 </dependency>
 ```
@@ -164,13 +141,13 @@ If the client retries with the same key, AvoOnce intercepts the call, bypasses t
 
 ```xml
 <dependency>
-    <groupId>io.github.ravocode.avoonce</groupId>
-    <artifactId>idempotency-jaxrs</artifactId>
+    <groupId>io.github.ravocode</groupId>
+    <artifactId>avoonce-jaxrs</artifactId>
     <version>1.0.0</version>
 </dependency>
 <dependency>
-    <groupId>io.github.ravocode.avoonce</groupId>
-    <artifactId>idempotency-caffeine</artifactId>
+    <groupId>io.github.ravocode</groupId>
+    <artifactId>avoonce-caffeine</artifactId>
     <version>1.0.0</version>
 </dependency>
 ```
@@ -265,15 +242,15 @@ avoonce:
 
 | Module | Description | Documentation |
 | :--- | :--- | :--- |
-| **`idempotency-core`** | Core state machine, SHA-256 hasher, response wrappers, and storage SPI | [README](idempotency-core/README.md) |
-| **`idempotency-caffeine`** | Fast in-memory storage implementation backed by Caffeine | [README](idempotency-caffeine/README.md) |
-| **`idempotency-jdbc`** | Distributed relational database storage (PostgreSQL, MySQL, H2, Oracle, MariaDB, SQL Server) | [README](idempotency-jdbc/README.md) |
-| **`idempotency-redis`** | Distributed Redis storage with native TTL management | [README](idempotency-redis/README.md) |
-| **`idempotency-spring-boot-starter`** | Spring Boot 4.0+ auto-configuration and `@Idempotent` Servlet Filter | [README](idempotency-spring-boot-starter/README.md) |
-| **`idempotency-spring-boot-sample`** | Spring Boot reference application demonstrating Caffeine and JDBC backends | [README](idempotency-spring-boot-sample/README.md) |
-| **`idempotency-jaxrs`** | Jakarta EE 10 / JAX-RS 3.1+ integration with `@Idempotent` name-binding | [README](idempotency-jaxrs/README.md) |
-| **`idempotency-quarkus-sample`** | Quarkus 3.12 reference application demonstrating CDI integration | [README](idempotency-quarkus-sample/README.md) |
-| **`idempotency-acceptance-tests`** | End-to-end acceptance test suite verifying concurrent locks, replays, and failures | Acceptance Tests |
+| **`avoonce-core`** | Core state machine, SHA-256 hasher, response wrappers, and storage SPI | [README](avoonce-core/README.md) |
+| **`avoonce-caffeine`** | Fast in-memory storage implementation backed by Caffeine | [README](avoonce-caffeine/README.md) |
+| **`avoonce-jdbc`** | Distributed relational database storage (PostgreSQL, MySQL, H2, Oracle, MariaDB, SQL Server) | [README](avoonce-jdbc/README.md) |
+| **`avoonce-redis`** | Distributed Redis storage with native TTL management | [README](avoonce-redis/README.md) |
+| **`avoonce-spring-boot-starter`** | Spring Boot 4.0+ auto-configuration and `@Idempotent` Servlet Filter | [README](avoonce-spring-boot-starter/README.md) |
+| **`avoonce-spring-boot-sample`** | Spring Boot reference application demonstrating Caffeine and JDBC backends | [README](avoonce-spring-boot-sample/README.md) |
+| **`avoonce-jaxrs`** | Jakarta EE 10 / JAX-RS 3.1+ integration with `@Idempotent` name-binding | [README](avoonce-jaxrs/README.md) |
+| **`avoonce-quarkus-sample`** | Quarkus 3.12 reference application demonstrating CDI integration | [README](avoonce-quarkus-sample/README.md) |
+| **`avoonce-acceptance-tests`** | End-to-end acceptance test suite verifying concurrent locks, replays, and failures | Acceptance Tests |
 
 ---
 

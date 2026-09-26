@@ -1,4 +1,4 @@
-# Idempotency Core
+# AvoOnce Core
 
 This module contains the core domain objects and Service Provider Interface (SPI) for the AvoOnce idempotency library.
 

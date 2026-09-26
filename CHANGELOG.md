@@ -19,13 +19,13 @@ AvoOnce is now available as a lightweight, framework-agnostic distributed idempo
 
 ### Included Modules
 
-- `idempotency-core` – core state machine, hashing logic, response wrappers, and storage SPI
-- `idempotency-caffeine` – high-performance in-memory backend
-- `idempotency-jdbc` – relational backend for PostgreSQL, MySQL, H2, Oracle, MariaDB, and SQL Server
-- `idempotency-redis` – distributed Redis backend with TTL-based expiration
-- `idempotency-spring-boot-starter` – Spring Boot integration and auto-configuration
-- `idempotency-jaxrs` – Jakarta EE / JAX-RS integration
-- `idempotency-spring-boot-sample`, `idempotency-quarkus-sample`, and acceptance tests – reference applications and validation coverage
+- `avoonce-core` – core state machine, hashing logic, response wrappers, and storage SPI
+- `avoonce-caffeine` – high-performance in-memory backend
+- `avoonce-jdbc` – relational backend for PostgreSQL, MySQL, H2, Oracle, MariaDB, and SQL Server
+- `avoonce-redis` – distributed Redis backend with TTL-based expiration
+- `avoonce-spring-boot-starter` – Spring Boot integration and auto-configuration
+- `avoonce-jaxrs` – Jakarta EE / JAX-RS integration
+- `avoonce-spring-boot-sample`, `avoonce-quarkus-sample`, and acceptance tests – reference applications and validation coverage
 
 ### Getting Started
 

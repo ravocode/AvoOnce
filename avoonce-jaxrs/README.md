@@ -1,10 +1,10 @@
-# Idempotency JAX-RS Integration
+# AvoOnce JAX-RS Integration
 
 This module provides a JAX-RS `ContainerRequestFilter` / `ContainerResponseFilter` integration for AvoOnce, enabling selective idempotency protection for any JAX-RS application using the `@Idempotent` name-binding annotation.
 
 ## Overview
 
-The `idempotency-jaxrs` module works with **any JAX-RS 3.1+ runtime** (Jakarta EE 10) — Quarkus, Dropwizard 4+, Jersey 3+, RESTEasy 6+, Helidon 4+, CXF, or any other compliant implementation. It has **no dependency on CDI, Spring, or any DI framework**. You simply construct the filter with your chosen `IdempotencyRepository` and register it.
+The `avoonce-jaxrs` module works with **any JAX-RS 3.1+ runtime** (Jakarta EE 10) — Quarkus, Dropwizard 4+, Jersey 3+, RESTEasy 6+, Helidon 4+, CXF, or any other compliant implementation. It has **no dependency on CDI, Spring, or any DI framework**. You simply construct the filter with your chosen `IdempotencyRepository` and register it.
 
 ## Installation
 
@@ -12,15 +12,15 @@ Add the JAX-RS module and your chosen storage backend to your `pom.xml`:
 
 ```xml
 <dependency>
-    <groupId>io.github.ravocode.avoonce</groupId>
-    <artifactId>idempotency-jaxrs</artifactId>
+    <groupId>io.github.ravocode</groupId>
+    <artifactId>avoonce-jaxrs</artifactId>
     <version>1.0.0</version>
 </dependency>
 
 <!-- Choose a storage backend -->
 <dependency>
-    <groupId>io.github.ravocode.avoonce</groupId>
-    <artifactId>idempotency-caffeine</artifactId>
+    <groupId>io.github.ravocode</groupId>
+    <artifactId>avoonce-caffeine</artifactId>
     <version>1.0.0</version>
 </dependency>
 ```

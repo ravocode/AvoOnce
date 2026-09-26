@@ -1,10 +1,10 @@
-# Idempotency Spring Boot Starter
+# AvoOnce Spring Boot Starter
 
 This module provides seamless, annotation-driven integration of the AvoOnce Idempotency library for Spring Boot applications.
 
 ## Overview
 
-The `idempotency-spring-boot-starter` auto-configures the core `IdempotencyManager` and injects an `IdempotencyFilter` (a standard Servlet `OncePerRequestFilter`) into your Spring Web MVC application. 
+The `avoonce-spring-boot-starter` auto-configures the core `IdempotencyManager` and injects an `IdempotencyFilter` (a standard Servlet `OncePerRequestFilter`) into your Spring Web MVC application. 
 
 AvoOnce operates selectively: only controller classes or handler methods annotated with `@Idempotent` are intercepted and protected. All other endpoints in your application bypass the idempotency filter completely.
 
@@ -17,17 +17,17 @@ AvoOnce operates selectively: only controller classes or handler methods annotat
 
 ## Installation
 
-Include this starter along with a chosen storage implementation (e.g., `idempotency-caffeine`, `idempotency-jdbc`, or `idempotency-redis`):
+Include this starter along with a chosen storage implementation (e.g., `avoonce-caffeine`, `avoonce-jdbc`, or `avoonce-redis`):
 
 ```xml
 <dependency>
-    <groupId>io.github.ravocode.avoonce</groupId>
-    <artifactId>idempotency-spring-boot-starter</artifactId>
+    <groupId>io.github.ravocode</groupId>
+    <artifactId>avoonce-spring-boot-starter</artifactId>
     <version>1.0.0</version>
 </dependency>
 <dependency>
-    <groupId>io.github.ravocode.avoonce</groupId>
-    <artifactId>idempotency-caffeine</artifactId>
+    <groupId>io.github.ravocode</groupId>
+    <artifactId>avoonce-caffeine</artifactId>
     <version>1.0.0</version>
 </dependency>
 ```
@@ -61,9 +61,9 @@ public class PaymentController {
 ## Storage Backend Selection
 
 By default, the starter automatically registers the repository implementation based on the dependencies present in your classpath:
-- **Caffeine (In-Memory):** Wired automatically if only `idempotency-caffeine` is present.
-- **JDBC (Distributed):** Wired automatically if only `idempotency-jdbc` is present and a `DataSource` bean is configured.
-- **Redis (Distributed):** Wired automatically if only `idempotency-redis` is present and a supported Redis client bean (e.g., `JedisPool` or `RedisClient`) is configured.
+- **Caffeine (In-Memory):** Wired automatically if only `avoonce-caffeine` is present.
+- **JDBC (Distributed):** Wired automatically if only `avoonce-jdbc` is present and a `DataSource` bean is configured.
+- **Redis (Distributed):** Wired automatically if only `avoonce-redis` is present and a supported Redis client bean (e.g., `JedisPool` or `RedisClient`) is configured.
 - **Ambiguity / Fail-Fast Guard:** If **multiple** storage backends are present on the classpath (and their required beans are configured), the application will fail to start to prevent ambiguity. You must explicitly configure the `avoonce.idempotency.store` property to choose one.
 
 To switch or explicitly define your backend, set:

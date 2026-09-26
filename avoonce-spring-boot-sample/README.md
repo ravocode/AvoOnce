@@ -1,6 +1,6 @@
 # AvoOnce Spring Boot Sample Application
 
-This module demonstrates how to use the `idempotency-spring-boot-starter` in a standard Spring Boot application, showcasing both storage backend selection and selective `@Idempotent` endpoint protection.
+This module demonstrates how to use the `avoonce-spring-boot-starter` in a standard Spring Boot application, showcasing both storage backend selection and selective `@Idempotent` endpoint protection.
 
 ## Features Demonstrated
 
@@ -46,7 +46,7 @@ avoonce.idempotency.jdbc.auto-ddl=true
 To run the sample application with the default backend selection (Caffeine), execute:
 
 ```bash
-mvn spring-boot:run -pl idempotency-spring-boot-sample
+mvn spring-boot:run -pl avoonce-spring-boot-sample
 ```
 
 ---

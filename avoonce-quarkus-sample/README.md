@@ -1,10 +1,10 @@
-# Idempotency Quarkus Sample
+# AvoOnce Quarkus Sample
 
 A sample Quarkus application demonstrating the integration of **AvoOnce** idempotency in a modern Jakarta EE / JAX-RS environment.
 
 ## Overview
 
-This project showcases how to protect REST endpoints in Quarkus using `idempotency-jaxrs` and an in-memory `idempotency-caffeine` storage backend.
+This project showcases how to protect REST endpoints in Quarkus using `avoonce-jaxrs` and an in-memory `avoonce-caffeine` storage backend.
 
 Key highlights:
 - Uses CDI (`IdempotencyFilterProducer`) to supply the `IdempotencyRepository`.
@@ -24,7 +24,7 @@ Start Quarkus in development mode:
 ```bash
 ./mvnw quarkus:dev
 # or
-mvn quarkus:dev -pl idempotency-quarkus-sample
+mvn quarkus:dev -pl avoonce-quarkus-sample
 ```
 
 The sample application will start on `http://localhost:8080`.
@@ -96,5 +96,5 @@ Every request will execute the backend logic and return a new `transactionId` an
 Execute the automated test suite:
 
 ```bash
-mvn test -pl idempotency-quarkus-sample
+mvn test -pl avoonce-quarkus-sample
 ```

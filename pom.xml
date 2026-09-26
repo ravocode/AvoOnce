@@ -4,8 +4,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>io.github.ravocode.avoonce</groupId>
-    <artifactId>idempotency-parent</artifactId>
+    <groupId>io.github.ravocode</groupId>
+    <artifactId>avoonce-parent</artifactId>
     <version>1.0.0</version>
     <packaging>pom</packaging>
 
@@ -58,15 +58,15 @@
     </properties>
 
     <modules>
-        <module>idempotency-core</module>
-        <module>idempotency-caffeine</module>
-        <module>idempotency-jaxrs</module>
-        <module>idempotency-jdbc</module>
-        <module>idempotency-redis</module>
-        <module>idempotency-spring-boot-starter</module>
-        <module>idempotency-spring-boot-sample</module>
-        <module>idempotency-quarkus-sample</module>
-        <module>idempotency-acceptance-tests</module>
+        <module>avoonce-core</module>
+        <module>avoonce-caffeine</module>
+        <module>avoonce-jaxrs</module>
+        <module>avoonce-jdbc</module>
+        <module>avoonce-redis</module>
+        <module>avoonce-spring-boot-starter</module>
+        <module>avoonce-spring-boot-sample</module>
+        <module>avoonce-quarkus-sample</module>
+        <module>avoonce-acceptance-tests</module>
     </modules>
 
     <dependencyManagement>
@@ -131,34 +131,34 @@
 
             <!-- AvoOnce Internal Modules -->
             <dependency>
-                <groupId>io.github.ravocode.avoonce</groupId>
-                <artifactId>idempotency-core</artifactId>
+                <groupId>io.github.ravocode</groupId>
+                <artifactId>avoonce-core</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>io.github.ravocode.avoonce</groupId>
-                <artifactId>idempotency-caffeine</artifactId>
+                <groupId>io.github.ravocode</groupId>
+                <artifactId>avoonce-caffeine</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>io.github.ravocode.avoonce</groupId>
-                <artifactId>idempotency-jdbc</artifactId>
+                <groupId>io.github.ravocode</groupId>
+                <artifactId>avoonce-jdbc</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>io.github.ravocode.avoonce</groupId>
-                <artifactId>idempotency-redis</artifactId>
+                <groupId>io.github.ravocode</groupId>
+                <artifactId>avoonce-redis</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>io.github.ravocode.avoonce</groupId>
-                <artifactId>idempotency-jaxrs</artifactId>
+                <groupId>io.github.ravocode</groupId>
+                <artifactId>avoonce-jaxrs</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>io.github.ravocode.avoonce</groupId>
-                <artifactId>idempotency-spring-boot-starter</artifactId>
+                <groupId>io.github.ravocode</groupId>
+                <artifactId>avoonce-spring-boot-starter</artifactId>
                 <version>${project.version}</version>
             </dependency>
         </dependencies>
