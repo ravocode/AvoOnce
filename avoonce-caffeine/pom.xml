@@ -9,6 +9,8 @@
         <version>1.0.0</version>
     </parent>
 
+    <name>avoonce-caffeine</name>
+    <description>Fast in-memory storage implementation backed by Caffeine</description>
     <artifactId>avoonce-caffeine</artifactId>
 
     <dependencies>
