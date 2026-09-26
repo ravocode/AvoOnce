@@ -15,16 +15,14 @@ jobs:
         with:
           java-version: '21'
           distribution: 'temurin'
-          # This configures settings.xml with the ossrh server id
           server-id: ossrh
           server-username: MAVEN_USERNAME
           server-password: MAVEN_PASSWORD
-          # This configures GPG signing for maven
-          gpg-private-key: ${{ secrets.OSSRH_GPG_SECRET_KEY }}
-          gpg-passphrase: MAVEN_GPG_PASSPHRASE
- 
-      - name: Verify GPG setup
-        run: gpg --list-secret-keys
+
+      - name: Import GPG key
+        run: |
+          echo "${{ secrets.OSSRH_GPG_SECRET_KEY }}" | base64 -d | gpg --import --no-tty --batch --yes
+          gpg --list-secret-keys
 
       - name: Publish to Maven Central
         # The release profile includes the GPG signing, Javadoc, and Source plugins
