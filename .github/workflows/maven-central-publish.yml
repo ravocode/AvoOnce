@@ -22,6 +22,9 @@ jobs:
           # This configures GPG signing for maven
           gpg-private-key: ${{ secrets.OSSRH_GPG_SECRET_KEY }}
           gpg-passphrase: MAVEN_GPG_PASSPHRASE
+ 
+      - name: Verify GPG setup
+        run: gpg --list-secret-keys
 
       - name: Publish to Maven Central
         # The release profile includes the GPG signing, Javadoc, and Source plugins
