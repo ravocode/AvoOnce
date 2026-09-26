@@ -10,6 +10,8 @@
     </parent>
 
     <artifactId>avoonce-acceptance-tests</artifactId>
+    <name>AvoOnce Acceptance Tests</name>
+    <description>End-to-end acceptance tests for AvoOnce</description>
 
     <properties>
         <maven.deploy.skip>true</maven.deploy.skip>

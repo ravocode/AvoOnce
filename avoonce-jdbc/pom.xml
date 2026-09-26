@@ -10,6 +10,8 @@
     </parent>
 
     <artifactId>avoonce-jdbc</artifactId>
+    <name>AvoOnce JDBC Backend</name>
+    <description>JDBC storage backend for AvoOnce idempotency</description>
 
     <!-- No runtime dependencies beyond avoonce-core.
          java.sql.DataSource is part of the JDK — framework-agnostic by design. -->

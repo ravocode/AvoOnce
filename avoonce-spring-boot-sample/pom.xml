@@ -10,6 +10,8 @@
     </parent>
 
     <artifactId>avoonce-spring-boot-sample</artifactId>
+    <name>AvoOnce Spring Boot Sample</name>
+    <description>Sample Spring Boot application showcasing AvoOnce idempotency</description>
 
     <properties>
         <maven.deploy.skip>true</maven.deploy.skip>

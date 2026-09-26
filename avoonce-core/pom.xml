@@ -10,6 +10,8 @@
     </parent>
 
     <artifactId>avoonce-core</artifactId>
+    <name>AvoOnce Core</name>
+    <description>Core idempotency framework for AvoOnce</description>
 
     <dependencies>
         <dependency>

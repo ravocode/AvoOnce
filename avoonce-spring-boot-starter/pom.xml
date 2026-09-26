@@ -10,6 +10,8 @@
     </parent>
 
     <artifactId>avoonce-spring-boot-starter</artifactId>
+    <name>AvoOnce Spring Boot Starter</name>
+    <description>Spring Boot auto-configuration starter for AvoOnce idempotency</description>
 
     <dependencies>
         <!-- AvoOnce Core & Default Implementation -->

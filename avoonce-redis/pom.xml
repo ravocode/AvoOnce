@@ -10,6 +10,8 @@
     </parent>
 
     <artifactId>avoonce-redis</artifactId>
+    <name>AvoOnce Redis Backend</name>
+    <description>Redis storage backend for AvoOnce idempotency</description>
 
     <dependencies>
         <dependency>
