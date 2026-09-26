@@ -26,7 +26,7 @@ jobs:
 
       - name: Publish to Maven Central
         # The release profile includes the GPG signing, Javadoc, and Source plugins
-        run: mvn -B deploy -P release
+        run: mvn -B deploy -P release -Dgpg.passphrase="$MAVEN_GPG_PASSPHRASE"
         env:
           MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
